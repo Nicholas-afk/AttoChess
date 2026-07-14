@@ -6,8 +6,18 @@
 <title>AttoChess — a 278-byte chess program for 16-bit x86 DOS</title>
 <meta name="description" content="AttoChess is a complete, playable chess program for 16-bit x86 DOS in 278 bytes. Play it in the browser, read the source, and reproduce the byte count.">
 
-<link rel="stylesheet" href="https://v8.js-dos.com/latest/js-dos.css">
-<script src="https://v8.js-dos.com/latest/js-dos.js"></script>
+<!-- The js-dos emulator runs in a Web Worker that needs SharedArrayBuffer, which
+     the browser only exposes to a cross-origin-isolated page (COOP + COEP headers).
+     GitHub Pages serves static files and cannot send those headers, so this tiny
+     service worker re-serves the page with them applied. It must run before js-dos. -->
+<script src="coi-serviceworker.js"></script>
+
+<!-- js-dos is vendored locally (jsdos/) rather than loaded from v8.js-dos.com.
+     Under cross-origin isolation the browser blocks cross-origin subresources that
+     lack CORP headers (which the CDN does not send), so same-origin hosting is what
+     makes the emulator load at all on GitHub Pages. -->
+<link rel="stylesheet" href="jsdos/js-dos.css">
+<script src="jsdos/js-dos.js"></script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -143,19 +153,34 @@ pre .k{ color:var(--amber-hi); }
 .byline b{ color:var(--amber); font-weight:500; }
 
 .machine{ padding-top:0; border-top:0; }
+/* Keep the whole machine (board + console + status) hugging the board width so it
+   reads as one compact unit instead of a narrow board floating in a wide panel. */
+.machine #machine{ max-width:31rem; }
 
 .board-panel{
   border:1px solid var(--rule);
   border-top:2px solid var(--amber-dim);
   background:#000;
-  padding:clamp(1rem, 3vw, 1.75rem);
+  padding:clamp(.85rem, 2.5vw, 1.35rem);
+}
+
+/* The board is laid out as: [rank labels] [square board] on the top row, and
+   [spacer] [file labels] on the bottom row. The board column is `1fr` and the
+   grid inside it is forced to aspect-ratio 1/1, so every cell is a true square
+   regardless of the surrounding label tracks. */
+.board-wrap{
+  display:grid;
+  grid-template-columns:1.15rem 1fr;
+  grid-template-rows:auto 1.15rem;
+  gap:.3rem;
+  width:100%; max-width:26rem;
+  margin:0 auto;
 }
 
 .stage{
   position:relative;
+  grid-column:2; grid-row:1;
   width:100%;
-  max-width:30rem;
-  margin:0 auto;
   aspect-ratio:1 / 1;
 }
 
@@ -163,13 +188,13 @@ pre .k{ color:var(--amber-hi); }
   display:grid;
   grid-template-columns:repeat(8, 1fr);
   grid-template-rows:repeat(8, 1fr);
-  width:100%; height:100%;
+  position:absolute; inset:0;
   border:1px solid var(--rule);
 }
 .sq{
   display:flex; align-items:center; justify-content:center;
   font-family:var(--mono);
-  font-size:clamp(1rem, 4.2vw, 1.5rem);
+  font-size:clamp(.95rem, 5.5vw, 1.5rem);
   font-weight:500;
   line-height:1;
   color:var(--amber-hi);
@@ -177,25 +202,20 @@ pre .k{ color:var(--amber-hi); }
 .sq.is-dark{ background:rgba(232,163,58,.045); }
 .sq.is-black{ color:var(--amber-lo); }
 .sq.is-empty{ color:rgba(232,163,58,.16); font-size:.8em; }
+.sq.is-from{ background:rgba(232,163,58,.14); }
+.sq.is-to{ background:rgba(232,163,58,.22); }
 
 .files, .ranks{
   font-family:var(--mono); font-size:.6875rem;
   color:var(--muted);
 }
-.board-wrap{
-  display:grid;
-  grid-template-columns:1.25rem 1fr;
-  grid-template-rows:1fr 1.25rem;
-  gap:.35rem;
-  width:100%; max-width:32rem;
-  margin:0 auto;
-}
 .ranks{
+  grid-column:1; grid-row:1;
   display:grid; grid-template-rows:repeat(8, 1fr);
   align-items:center; justify-items:center;
 }
 .files{
-  grid-column:2;
+  grid-column:2; grid-row:2;
   display:grid; grid-template-columns:repeat(8, 1fr);
   align-items:center; justify-items:center;
 }
@@ -220,13 +240,13 @@ pre .k{ color:var(--amber-hi); }
   position:absolute; inset:0;
   z-index:3;
   background:#000;
-  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1.1rem;
-  text-align:center; padding:2rem;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem;
+  text-align:center; padding:1.5rem;
 }
 .overlay p{
   margin:0;
-  max-width:26rem;
-  font-family:var(--mono); font-size:.8125rem; line-height:1.7;
+  max-width:22rem;
+  font-family:var(--mono); font-size:.75rem; line-height:1.6;
   color:var(--muted);
 }
 .overlay.is-error strong{ color:var(--amber); font-weight:600; }
@@ -375,16 +395,16 @@ footer{ border-top:1px solid var(--rule); padding:2.75rem 0 3.5rem; }
 <section class="machine" aria-label="Play AttoChess">
   <div class="wrap" id="machine">
     <div class="board-panel">
-      <div class="stage" id="stage">
-        <div class="board-wrap">
-          <div class="ranks" id="ranks"></div>
+      <div class="board-wrap">
+        <div class="ranks" id="ranks"></div>
+        <div class="stage" id="stage">
           <div class="grid" id="grid"></div>
-          <div class="files" id="files"></div>
+          <div class="overlay" id="overlay">
+            <button class="btn" id="start">Start game</button>
+            <p>Loads the 278-byte program in an emulated DOS machine. You play White.</p>
+          </div>
         </div>
-        <div class="overlay" id="overlay">
-          <button class="btn" id="start">Start game</button>
-          <p>Loads the 278-byte program in an emulated DOS machine. You play White.</p>
-        </div>
+        <div class="files" id="files"></div>
       </div>
     </div>
 
@@ -663,6 +683,29 @@ AttoChess.com</code></pre>
 
   var FILES = ["a","b","c","d","e","f","g","h"];
 
+  // Live copy of the position currently shown on the HTML board. sendMove() applies
+  // the player's move to this optimistically (so the piece moves the instant the move
+  // is entered), and tick() reconciles it against what the emulator actually renders
+  // — which is how Black's reply then appears on its own, a beat later.
+  var shown = cloneBoard(START);
+  // Squares to highlight as the last move's from/to, as ["rc","rc"] or null.
+  var lastMove = null;
+
+  function cloneBoard(b) {
+    var out = [];
+    for (var r = 0; r < 8; r++) out[r] = b[r].slice();
+    return out;
+  }
+
+  // "e2e4" -> {fromR, fromC, toR, toC}. Board row 0 is rank 8, col 0 is file a.
+  function parseMove(text) {
+    var fc = text.charCodeAt(0) - 97;      // file a-h -> 0-7
+    var fr = 8 - (text.charCodeAt(1) - 48); // rank 1-8 -> row 7-0
+    var tc = text.charCodeAt(2) - 97;
+    var tr = 8 - (text.charCodeAt(3) - 48);
+    return { fromR: fr, fromC: fc, toR: tr, toC: tc };
+  }
+
   function buildGrid() {
     for (var r = 0; r < 8; r++) {
       cells[r] = [];
@@ -685,17 +728,20 @@ AttoChess.com</code></pre>
   }
 
   function paint(board) {
+    var from = lastMove ? lastMove[0] : "";
+    var to = lastMove ? lastMove[1] : "";
     for (var r = 0; r < 8; r++) {
       for (var f = 0; f < 8; f++) {
         var ch = board[r][f];
         var el = cells[r][f];
         var dark = (r + f) % 2 ? " is-dark" : "";
+        var mark = (r + "" + f === from) ? " is-from" : (r + "" + f === to) ? " is-to" : "";
         if (!ch) {
           el.textContent = "\u00b7";
-          el.className = "sq is-empty" + dark;
+          el.className = "sq is-empty" + dark + mark;
         } else {
           el.textContent = ch;
-          el.className = "sq" + (ch === ch.toLowerCase() ? " is-black" : "") + dark;
+          el.className = "sq" + (ch === ch.toLowerCase() ? " is-black" : "") + dark + mark;
         }
       }
     }
@@ -803,8 +849,10 @@ AttoChess.com</code></pre>
 
     if (!calibrated) {
       if (calibrate(sigs)) {
+        shown = cloneBoard(START);
+        lastMove = null;
         lastBoard = JSON.stringify(START);
-        paint(START);
+        paint(shown);
         setState("Your move");
       }
       return;
@@ -814,13 +862,31 @@ AttoChess.com</code></pre>
     var key = JSON.stringify(board);
     if (key !== lastBoard) {
       lastBoard = key;
-      paint(board);
+      // Highlight whatever squares changed between the shown position and the
+      // emulator's new one — this is Black's reply landing on its own.
+      if (waiting) lastMove = diffMove(shown, board);
+      shown = cloneBoard(board);
+      paint(shown);
       if (waiting) {
         waiting = false;
         setState("Your move");
         enableInput();
       }
     }
+  }
+
+  // Find the from/to squares between two positions (a square that emptied vs one that
+  // changed piece). Returns ["rc","rc"] for paint(), or null if it can't tell.
+  function diffMove(before, after) {
+    var emptied = "", filled = "";
+    for (var r = 0; r < 8; r++) {
+      for (var f = 0; f < 8; f++) {
+        if (before[r][f] === after[r][f]) continue;
+        if (after[r][f] === "") emptied = r + "" + f;
+        else filled = r + "" + f;
+      }
+    }
+    return filled ? [emptied, filled] : null;
   }
 
   function setState(text) {
@@ -861,13 +927,9 @@ AttoChess.com</code></pre>
         kiosk: true,
         autoStart: true,
         noCloud: true,
-        // Run the emulator on the render thread rather than a worker. The worker
-        // backend needs SharedArrayBuffer, which requires cross-origin isolation
-        // (COOP+COEP headers) that GitHub Pages cannot send — so with the default
-        // worker backend the emulator never reaches "ci-ready" there and the whole
-        // machine silently hangs on "Loading". The direct backend has no such
-        // requirement and boots anywhere.
-        worker: false,
+        // Load the emulator core (emulators.js + the wdosbox .wasm) from the local
+        // vendored copy instead of the default v8.js-dos.com CDN.
+        pathPrefix: "jsdos/emulators/",
         renderAspect: "Fit",
         onEvent: function (event, commandInterface) {
           if (event !== "ci-ready") return;
@@ -914,6 +976,19 @@ AttoChess.com</code></pre>
     }
     disableInput();
     waiting = true;
+
+    // Show the player's move immediately — move the piece the instant it's entered,
+    // before the emulator has even finished thinking. tick() reconciles later and
+    // brings in Black's reply on its own, so the two moves never animate together.
+    var mv = parseMove(text);
+    var piece = shown[mv.fromR][mv.fromC];
+    if (piece) {
+      shown[mv.fromR][mv.fromC] = "";
+      shown[mv.toR][mv.toC] = piece;
+      lastMove = [mv.fromR + "" + mv.fromC, mv.toR + "" + mv.toC];
+      lastBoard = JSON.stringify(shown);
+      paint(shown);
+    }
     setState("Black is thinking");
 
     text.split("").forEach(function (ch, i) {
