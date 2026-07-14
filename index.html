@@ -201,15 +201,22 @@ pre .k{ color:var(--amber-hi); }
 }
 
 .term{
-  display:none;
-  position:relative;
-  width:100%;
-  aspect-ratio:4 / 3;
+  position:absolute;
+  left:-10000px;
+  top:0;
+  width:640px;
+  height:400px;
   background:#000;
+}
+.stage.is-raw .term{
+  position:relative;
+  left:auto;
+  width:100%;
+  height:auto;
+  aspect-ratio:4 / 3;
   border:1px solid var(--rule);
 }
-.is-raw .term{ display:block; }
-.is-raw .board-wrap{ display:none; }
+.stage.is-raw .board-wrap{ display:none; }
 
 #dos{ position:absolute; inset:0; }
 #dos canvas{
@@ -217,13 +224,6 @@ pre .k{ color:var(--amber-hi); }
   width:100% !important; height:100% !important;
   image-rendering:pixelated;
   filter:sepia(.62) saturate(2.1) hue-rotate(-12deg) brightness(1.08);
-}
-
-.hidden-emu{
-  position:absolute;
-  width:640px; height:400px;
-  left:-10000px; top:0;
-  pointer-events:none;
 }
 
 .overlay{
@@ -870,8 +870,6 @@ AttoChess.com</code></pre>
       return;
     }
 
-    mount.parentNode.classList.add("term");
-
     try {
       Dos(mount, {
         url: "attochess.zip",
@@ -916,14 +914,19 @@ AttoChess.com</code></pre>
 
   buildGrid();
 
+  ["keydown", "keyup", "keypress"].forEach(function (type) {
+    window.addEventListener(type, function (e) {
+      if (e.target !== moveInput) return;
+      e.stopImmediatePropagation();
+      if (type === "keydown" && e.key === "Enter") {
+        e.preventDefault();
+        sendMove();
+      }
+    }, true);
+  });
+
   startBtn.addEventListener("click", boot);
   sendBtn.addEventListener("click", sendMove);
-  moveInput.addEventListener("keydown", function (e) {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      sendMove();
-    }
-  });
   viewBtn.addEventListener("click", function () {
     var raw = stage.classList.toggle("is-raw");
     viewBtn.textContent = raw ? "Show board" : "Show DOS terminal";
