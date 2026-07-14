@@ -163,7 +163,10 @@ pre .k{ color:var(--amber-hi); }
   overflow:hidden;
 }
 #dos{ position:absolute; inset:0; }
-#dos canvas{ image-rendering:pixelated; }
+#dos canvas{
+  image-rendering:pixelated;
+  filter:sepia(.6) saturate(1.7) hue-rotate(-12deg) brightness(1.05) contrast(1.05);
+}
 
 .screen__msg{
   position:absolute; inset:0;
@@ -539,9 +542,9 @@ AttoChess.com</code></pre>
     try {
       Dos(mount, {
         url: "attochess.zip",
-        theme: "dark",
+        theme: "luxury",
         imageRendering: "pixelated",
-        autoStart: false,
+        autoStart: true,
         noCloud: true
       });
       if (msg && msg.parentNode) {
