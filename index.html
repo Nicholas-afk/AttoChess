@@ -148,30 +148,83 @@ pre .k{ color:var(--amber-hi); }
   border:1px solid var(--rule);
   border-top:2px solid var(--amber-dim);
   background:#000;
+  padding:clamp(1rem, 3vw, 1.75rem);
 }
 
 .stage{
   position:relative;
   width:100%;
+  max-width:30rem;
+  margin:0 auto;
+  aspect-ratio:1 / 1;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(8, 1fr);
+  grid-template-rows:repeat(8, 1fr);
+  width:100%; height:100%;
+  border:1px solid var(--rule);
+}
+.sq{
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--mono);
+  font-size:clamp(1rem, 4.2vw, 1.5rem);
+  font-weight:500;
+  line-height:1;
+  color:var(--amber-hi);
+}
+.sq.is-dark{ background:rgba(232,163,58,.045); }
+.sq.is-black{ color:var(--amber-lo); }
+.sq.is-empty{ color:rgba(232,163,58,.16); font-size:.8em; }
+
+.files, .ranks{
+  font-family:var(--mono); font-size:.6875rem;
+  color:var(--muted);
+}
+.board-wrap{
+  display:grid;
+  grid-template-columns:1.25rem 1fr;
+  grid-template-rows:1fr 1.25rem;
+  gap:.35rem;
+  width:100%; max-width:32rem;
+  margin:0 auto;
+}
+.ranks{
+  display:grid; grid-template-rows:repeat(8, 1fr);
+  align-items:center; justify-items:center;
+}
+.files{
+  grid-column:2;
+  display:grid; grid-template-columns:repeat(8, 1fr);
+  align-items:center; justify-items:center;
+}
+
+.term{
+  display:none;
+  position:relative;
+  width:100%;
   aspect-ratio:4 / 3;
-  max-height:70vh;
   background:#000;
-  overflow:hidden;
+  border:1px solid var(--rule);
 }
-#dos{
-  position:absolute; inset:0;
-  transform-origin:0 0;
-}
-#dos > *{ width:100%; height:100%; }
+.is-raw .term{ display:block; }
+.is-raw .board-wrap{ display:none; }
+
+#dos{ position:absolute; inset:0; }
 #dos canvas{
-  position:absolute;
-  inset:0;
-  width:100% !important;
-  height:100% !important;
+  position:absolute; inset:0;
+  width:100% !important; height:100% !important;
   image-rendering:pixelated;
-  filter:sepia(.62) saturate(2.1) hue-rotate(-12deg) brightness(1.08) contrast(1.08);
+  filter:sepia(.62) saturate(2.1) hue-rotate(-12deg) brightness(1.08);
 }
-.stage.is-raw #dos{ transform:none !important; }
+
+.hidden-emu{
+  position:absolute;
+  width:640px; height:400px;
+  left:-10000px; top:0;
+  pointer-events:none;
+}
 
 .overlay{
   position:absolute; inset:0;
@@ -186,7 +239,6 @@ pre .k{ color:var(--amber-hi); }
   font-family:var(--mono); font-size:.8125rem; line-height:1.7;
   color:var(--muted);
 }
-.overlay.is-error{ gap:.6rem; }
 .overlay.is-error strong{ color:var(--amber); font-weight:600; }
 
 .btn{
@@ -204,12 +256,6 @@ pre .k{ color:var(--amber-hi); }
 .btn:hover{ background:var(--amber-hi); border-color:var(--amber-hi); }
 .btn:focus-visible{ outline:2px solid var(--amber-hi); outline-offset:3px; }
 .btn:disabled{ opacity:.4; cursor:default; }
-.btn--ghost{
-  color:var(--amber);
-  background:none;
-  border:1px solid var(--rule);
-}
-.btn--ghost:hover{ background:none; border-color:var(--amber-dim); color:var(--amber-hi); }
 
 .console{
   display:flex; flex-wrap:wrap; align-items:center; gap:.6rem;
@@ -244,7 +290,7 @@ pre .k{ color:var(--amber-hi); }
   font-family:var(--mono); font-size:.75rem;
   color:var(--muted);
 }
-.status__legend b{ color:var(--amber); font-weight:500; }
+.status__state b{ color:var(--amber); font-weight:500; }
 .status__view{
   font-family:var(--mono); font-size:.75rem;
   color:var(--muted);
@@ -337,10 +383,15 @@ footer{ border-top:1px solid var(--rule); padding:2.75rem 0 3.5rem; }
 </header>
 
 <section class="machine" aria-label="Play AttoChess">
-  <div class="wrap">
+  <div class="wrap" id="machine">
     <div class="board-panel">
       <div class="stage" id="stage">
-        <div id="dos"></div>
+        <div class="board-wrap">
+          <div class="ranks" id="ranks"></div>
+          <div class="grid" id="grid"></div>
+          <div class="files" id="files"></div>
+        </div>
+        <div class="term" id="term"><div id="dos"></div></div>
         <div class="overlay" id="overlay">
           <button class="btn" id="start">Start game</button>
           <p>Loads the 278-byte program in an emulated DOS machine. You play White.</p>
@@ -356,8 +407,8 @@ footer{ border-top:1px solid var(--rule); padding:2.75rem 0 3.5rem; }
     </div>
 
     <div class="status">
-      <span class="status__legend"><b>K N B P Q R</b> White &nbsp;·&nbsp; <b>k n b p q r</b> Black</span>
-      <button class="status__view" id="view">Show full terminal</button>
+      <span class="status__state" id="state">Not started</span>
+      <button class="status__view" id="view">Show DOS terminal</button>
     </div>
   </div>
 </section>
@@ -582,37 +633,214 @@ AttoChess.com</code></pre>
 
 <script>
 (function () {
-  var VIEW = { col0: 0, cols: 10, row0: 7, rows: 18 };
-  var COLUMNS = 80;
+  var COLS = 80;
   var ROWS = 25;
+  var POLL = 320;
 
+  var START = [
+    ["r","n","b","q","k","b","n","r"],
+    ["p","p","p","p","p","p","p","p"],
+    ["","","","","","","",""],
+    ["","","","","","","",""],
+    ["","","","","","","",""],
+    ["","","","","","","",""],
+    ["P","P","P","P","P","P","P","P"],
+    ["R","N","B","Q","K","B","N","R"]
+  ];
+
+  var machine = document.getElementById("machine");
   var stage = document.getElementById("stage");
+  var gridEl = document.getElementById("grid");
+  var ranksEl = document.getElementById("ranks");
+  var filesEl = document.getElementById("files");
   var mount = document.getElementById("dos");
   var overlay = document.getElementById("overlay");
   var startBtn = document.getElementById("start");
   var moveInput = document.getElementById("move");
   var sendBtn = document.getElementById("send");
   var viewBtn = document.getElementById("view");
+  var stateEl = document.getElementById("state");
 
   var ci = null;
   var booting = false;
+  var glyphs = {};
+  var calibrated = false;
+  var lastBoard = "";
+  var waiting = false;
+  var cells = [];
 
-  function applyView() {
-    var s = ROWS / VIEW.rows;
-    var tx = 100 * ((1 - s * VIEW.cols / COLUMNS) / (2 * s) - VIEW.col0 / COLUMNS);
-    var ty = -100 * VIEW.row0 / ROWS;
-    mount.style.transform = "scale(" + s + ") translate(" + tx + "%, " + ty + "%)";
+  var FILES = ["a","b","c","d","e","f","g","h"];
+
+  function buildGrid() {
+    for (var r = 0; r < 8; r++) {
+      cells[r] = [];
+      for (var f = 0; f < 8; f++) {
+        var d = document.createElement("div");
+        d.className = "sq" + ((r + f) % 2 ? " is-dark" : "");
+        gridEl.appendChild(d);
+        cells[r][f] = d;
+      }
+      var rk = document.createElement("span");
+      rk.textContent = 8 - r;
+      ranksEl.appendChild(rk);
+    }
+    FILES.forEach(function (f) {
+      var s = document.createElement("span");
+      s.textContent = f;
+      filesEl.appendChild(s);
+    });
+    paint(START);
   }
 
-  function showError(title, detail) {
-    overlay.className = "overlay is-error";
-    overlay.innerHTML = "";
-    var h = document.createElement("p");
-    h.innerHTML = "<strong>" + title + "</strong>";
-    var d = document.createElement("p");
-    d.textContent = detail;
-    overlay.appendChild(h);
-    overlay.appendChild(d);
+  function paint(board) {
+    for (var r = 0; r < 8; r++) {
+      for (var f = 0; f < 8; f++) {
+        var ch = board[r][f];
+        var el = cells[r][f];
+        if (!ch) {
+          el.textContent = "\u00b7";
+          el.className = "sq is-empty" + ((r + f) % 2 ? " is-dark" : "");
+        } else {
+          el.textContent = ch;
+          var black = ch === ch.toLowerCase();
+          el.className = "sq" + (black ? " is-black" : "") + ((r + f) % 2 ? " is-dark" : "");
+        }
+      }
+    }
+  }
+
+  function signature(data, w, cw, chh, row, col) {
+    var x0 = Math.round(col * cw);
+    var y0 = Math.round(row * chh);
+    var sig = "";
+    var lit = 0;
+    for (var sy = 0; sy < 8; sy++) {
+      for (var sx = 0; sx < 6; sx++) {
+        var px = x0 + Math.round((sx + 0.5) * cw / 6);
+        var py = y0 + Math.round((sy + 1.0) * chh / 10);
+        var i = (py * w + px) * 4;
+        var lum = data[i] * 0.3 + data[i + 1] * 0.59 + data[i + 2] * 0.11;
+        if (lum > 90) { sig += "1"; lit++; } else { sig += "0"; }
+      }
+    }
+    return { sig: sig, lit: lit };
+  }
+
+  function readScreen(img) {
+    var w = img.width;
+    var h = img.height;
+    var cw = w / COLS;
+    var chh = h / ROWS;
+    var d = img.data;
+
+    var cache = {};
+    function at(row, col) {
+      var k = row + ":" + col;
+      if (!cache[k]) cache[k] = signature(d, w, cw, chh, row, col);
+      return cache[k];
+    }
+    function filled(row) {
+      var list = [];
+      for (var c = 0; c < 24; c++) {
+        if (at(row, c).lit > 2) list.push(c);
+      }
+      return list;
+    }
+
+    var baseRow = -1;
+    var col0 = 0;
+    for (var r = ROWS - 1; r >= 8; r--) {
+      var f = filled(r);
+      if (f.length >= 6 && (f[f.length - 1] - f[0]) <= 9) {
+        baseRow = r;
+        col0 = f[0];
+        break;
+      }
+    }
+    if (baseRow < 0) return null;
+
+    var spacing = filled(baseRow - 1).length >= 6 ? 1 : 2;
+    var top = baseRow - 7 * spacing;
+    if (top < 0) return null;
+
+    var board = [];
+    var sigs = [];
+    for (var i = 0; i < 8; i++) {
+      board[i] = [];
+      sigs[i] = [];
+      for (var j = 0; j < 8; j++) {
+        var s = at(top + i * spacing, col0 + j);
+        sigs[i][j] = s;
+        board[i][j] = "";
+      }
+    }
+    return { sigs: sigs, board: board };
+  }
+
+  function calibrate(sigs) {
+    for (var i = 0; i < 8; i++) {
+      for (var j = 0; j < 8; j++) {
+        var expect = START[i][j];
+        var s = sigs[i][j];
+        if (expect === "" && s.lit > 2) return false;
+        if (expect !== "" && s.lit <= 2) return false;
+      }
+    }
+    var map = {};
+    for (i = 0; i < 8; i++) {
+      for (j = 0; j < 8; j++) {
+        if (START[i][j] !== "") map[sigs[i][j].sig] = START[i][j];
+      }
+    }
+    glyphs = map;
+    calibrated = true;
+    return true;
+  }
+
+  function decode(sigs) {
+    var board = [];
+    for (var i = 0; i < 8; i++) {
+      board[i] = [];
+      for (var j = 0; j < 8; j++) {
+        var s = sigs[i][j];
+        board[i][j] = s.lit <= 2 ? "" : (glyphs[s.sig] || "?");
+      }
+    }
+    return board;
+  }
+
+  function tick() {
+    if (!ci) return;
+    ci.screenshot().then(function (img) {
+      var read = readScreen(img);
+      if (!read) return;
+
+      if (!calibrated) {
+        if (calibrate(read.sigs)) {
+          lastBoard = JSON.stringify(START);
+          paint(START);
+          setState("Your move", false);
+          enableInput();
+        }
+        return;
+      }
+
+      var board = decode(read.sigs);
+      var key = JSON.stringify(board);
+      if (key !== lastBoard) {
+        lastBoard = key;
+        paint(board);
+        if (waiting) {
+          waiting = false;
+          setState("Your move", false);
+          enableInput();
+        }
+      }
+    }).catch(function () {});
+  }
+
+  function setState(text, busy) {
+    stateEl.innerHTML = busy ? "<b>" + text + "</b>" : text;
   }
 
   function enableInput() {
@@ -621,19 +849,32 @@ AttoChess.com</code></pre>
     moveInput.focus();
   }
 
+  function disableInput() {
+    moveInput.disabled = true;
+    sendBtn.disabled = true;
+  }
+
+  function showError(title, detail) {
+    overlay.className = "overlay is-error";
+    overlay.innerHTML = "<p><strong>" + title + "</strong></p><p>" + detail + "</p>";
+  }
+
   function boot() {
     if (booting) return;
     booting = true;
     startBtn.disabled = true;
+    setState("Loading", true);
 
     if (typeof window.Dos !== "function") {
-      showError("js-dos did not load.", "The emulator script could not be fetched from v8.js-dos.com. Reload, or serve this page over http rather than opening the file directly.");
+      showError("js-dos did not load.", "Could not fetch the emulator from v8.js-dos.com.");
       return;
     }
 
+    mount.parentNode.classList.add("term");
+
     try {
       Dos(mount, {
-        url: "attochess-v2.zip",
+        url: "attochess.zip",
         theme: "black",
         kiosk: true,
         autoStart: true,
@@ -643,9 +884,9 @@ AttoChess.com</code></pre>
         onEvent: function (event, commandInterface) {
           if (event === "ci-ready") {
             ci = commandInterface;
-            applyView();
             overlay.remove();
-            enableInput();
+            setState("Reading board", true);
+            setInterval(tick, POLL);
           }
         }
       });
@@ -661,23 +902,19 @@ AttoChess.com</code></pre>
       moveInput.select();
       return;
     }
-
-    moveInput.disabled = true;
-    sendBtn.disabled = true;
+    disableInput();
+    waiting = true;
+    setState("Black is thinking", true);
 
     text.split("").forEach(function (ch, i) {
       setTimeout(function () {
         ci.simulateKeyPress(ch.charCodeAt(0));
-      }, i * 140);
+      }, i * 120);
     });
-
-    setTimeout(function () {
-      moveInput.value = "";
-      moveInput.disabled = false;
-      sendBtn.disabled = false;
-      moveInput.focus();
-    }, text.length * 140 + 120);
+    moveInput.value = "";
   }
+
+  buildGrid();
 
   startBtn.addEventListener("click", boot);
   sendBtn.addEventListener("click", sendMove);
@@ -689,7 +926,7 @@ AttoChess.com</code></pre>
   });
   viewBtn.addEventListener("click", function () {
     var raw = stage.classList.toggle("is-raw");
-    viewBtn.textContent = raw ? "Show board only" : "Show full terminal";
+    viewBtn.textContent = raw ? "Show board" : "Show DOS terminal";
   });
 })();
 </script>
