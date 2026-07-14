@@ -899,8 +899,8 @@ AttoChess.com</code></pre>
 
     text.split("").forEach(function (ch, i) {
       setTimeout(function () {
-        ci.simulateKeyPress(ch.charCodeAt(0));
-      }, i * 120);
+        ci.simulateKeyPress(ch.toUpperCase().charCodeAt(0));
+      }, i * 140);
     });
     moveInput.value = "";
 
