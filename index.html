@@ -869,13 +869,25 @@ AttoChess.com</code></pre>
           setState("Your move");
           enableInput();
 
-          ci.events().onFrameSize(function (w, h) {
-            frameW = w;
-            frameH = h;
-          });
+          // Seed the frame size directly. AttoChess never issues a video mode-set
+          // (the int 10h call was removed to save bytes), so onFrameSize never fires
+          // and frameW/frameH would otherwise stay 0 — leaving readScreen() unable to
+          // ever sample the emulator and the board frozen on its static starting layout.
+          function setSize(w, h) {
+            if (w) frameW = w;
+            if (h) frameH = h;
+          }
+          try { setSize(ci.width(), ci.height()); } catch (e) {}
+
+          ci.events().onFrameSize(setSize);
           ci.events().onFrame(function (rgb, rgba) {
             if (rgb) { frame = rgb; channels = 3; }
             else if (rgba) { frame = rgba; channels = 4; }
+            // Fallback: if the size never arrived via onFrameSize, pull it from the
+            // command interface once frames start flowing.
+            if (!frameW || !frameH) {
+              try { setSize(ci.width(), ci.height()); } catch (e) {}
+            }
           });
 
           setInterval(tick, POLL);
