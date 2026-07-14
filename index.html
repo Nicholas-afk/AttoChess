@@ -162,7 +162,12 @@ pre .k{ color:var(--amber-hi); }
   position:absolute; inset:0;
   transform-origin:0 0;
 }
+#dos > *{ width:100%; height:100%; }
 #dos canvas{
+  position:absolute;
+  inset:0;
+  width:100% !important;
+  height:100% !important;
   image-rendering:pixelated;
   filter:sepia(.62) saturate(2.1) hue-rotate(-12deg) brightness(1.08) contrast(1.08);
 }
