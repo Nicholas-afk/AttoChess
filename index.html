@@ -626,7 +626,7 @@ AttoChess.com</code></pre>
 (function () {
   var COLS = 80;
   var ROWS = 25;
-  var POLL = 320;
+  var POLL = 300;
 
   var START = [
     ["r","n","b","q","k","b","n","r"],
@@ -639,7 +639,6 @@ AttoChess.com</code></pre>
     ["R","N","B","Q","K","B","N","R"]
   ];
 
-  var machine = document.getElementById("machine");
   var gridEl = document.getElementById("grid");
   var ranksEl = document.getElementById("ranks");
   var filesEl = document.getElementById("files");
@@ -657,6 +656,10 @@ AttoChess.com</code></pre>
   var lastBoard = "";
   var waiting = false;
   var cells = [];
+  var frame = null;
+  var frameW = 0;
+  var frameH = 0;
+  var channels = 4;
 
   var FILES = ["a","b","c","d","e","f","g","h"];
 
@@ -686,46 +689,45 @@ AttoChess.com</code></pre>
       for (var f = 0; f < 8; f++) {
         var ch = board[r][f];
         var el = cells[r][f];
+        var dark = (r + f) % 2 ? " is-dark" : "";
         if (!ch) {
           el.textContent = "\u00b7";
-          el.className = "sq is-empty" + ((r + f) % 2 ? " is-dark" : "");
+          el.className = "sq is-empty" + dark;
         } else {
           el.textContent = ch;
-          var black = ch === ch.toLowerCase();
-          el.className = "sq" + (black ? " is-black" : "") + ((r + f) % 2 ? " is-dark" : "");
+          el.className = "sq" + (ch === ch.toLowerCase() ? " is-black" : "") + dark;
         }
       }
     }
   }
 
-  function signature(data, w, cw, chh, row, col) {
-    var x0 = Math.round(col * cw);
-    var y0 = Math.round(row * chh);
+  function signature(row, col) {
+    var cw = frameW / COLS;
+    var chh = frameH / ROWS;
+    var x0 = col * cw;
+    var y0 = row * chh;
     var sig = "";
     var lit = 0;
     for (var sy = 0; sy < 8; sy++) {
       for (var sx = 0; sx < 6; sx++) {
-        var px = x0 + Math.round((sx + 0.5) * cw / 6);
-        var py = y0 + Math.round((sy + 1.0) * chh / 10);
-        var i = (py * w + px) * 4;
-        var lum = data[i] * 0.3 + data[i + 1] * 0.59 + data[i + 2] * 0.11;
-        if (lum > 90) { sig += "1"; lit++; } else { sig += "0"; }
+        var px = Math.round(x0 + (sx + 0.5) * cw / 6);
+        var py = Math.round(y0 + (sy + 1) * chh / 10);
+        if (px < 0 || py < 0 || px >= frameW || py >= frameH) { sig += "0"; continue; }
+        var i = (py * frameW + px) * channels;
+        var lum = frame[i] * 0.3 + frame[i + 1] * 0.59 + frame[i + 2] * 0.11;
+        if (lum > 80) { sig += "1"; lit++; } else { sig += "0"; }
       }
     }
     return { sig: sig, lit: lit };
   }
 
-  function readScreen(img) {
-    var w = img.width;
-    var h = img.height;
-    var cw = w / COLS;
-    var chh = h / ROWS;
-    var d = img.data;
+  function readScreen() {
+    if (!frame || !frameW || !frameH) return null;
 
     var cache = {};
     function at(row, col) {
       var k = row + ":" + col;
-      if (!cache[k]) cache[k] = signature(d, w, cw, chh, row, col);
+      if (!cache[k]) cache[k] = signature(row, col);
       return cache[k];
     }
     function filled(row) {
@@ -738,7 +740,7 @@ AttoChess.com</code></pre>
 
     var baseRow = -1;
     var col0 = 0;
-    for (var r = ROWS - 1; r >= 8; r--) {
+    for (var r = ROWS - 1; r >= 7; r--) {
       var f = filled(r);
       if (f.length >= 6 && (f[f.length - 1] - f[0]) <= 9) {
         baseRow = r;
@@ -752,27 +754,24 @@ AttoChess.com</code></pre>
     var top = baseRow - 7 * spacing;
     if (top < 0) return null;
 
-    var board = [];
     var sigs = [];
     for (var i = 0; i < 8; i++) {
-      board[i] = [];
       sigs[i] = [];
       for (var j = 0; j < 8; j++) {
-        var s = at(top + i * spacing, col0 + j);
-        sigs[i][j] = s;
-        board[i][j] = "";
+        sigs[i][j] = at(top + i * spacing, col0 + j);
       }
     }
-    return { sigs: sigs, board: board };
+    return sigs;
   }
 
   function calibrate(sigs) {
-    for (var i = 0; i < 8; i++) {
-      for (var j = 0; j < 8; j++) {
+    var i, j;
+    for (i = 0; i < 8; i++) {
+      for (j = 0; j < 8; j++) {
         var expect = START[i][j];
-        var s = sigs[i][j];
-        if (expect === "" && s.lit > 2) return false;
-        if (expect !== "" && s.lit <= 2) return false;
+        var lit = sigs[i][j].lit;
+        if (expect === "" && lit > 2) return false;
+        if (expect !== "" && lit <= 2) return false;
       }
     }
     var map = {};
@@ -799,37 +798,33 @@ AttoChess.com</code></pre>
   }
 
   function tick() {
-    if (!ci) return;
-    ci.screenshot().then(function (img) {
-      var read = readScreen(img);
-      if (!read) return;
+    var sigs = readScreen();
+    if (!sigs) return;
 
-      if (!calibrated) {
-        if (calibrate(read.sigs)) {
-          lastBoard = JSON.stringify(START);
-          paint(START);
-          setState("Your move", false);
-          enableInput();
-        }
-        return;
+    if (!calibrated) {
+      if (calibrate(sigs)) {
+        lastBoard = JSON.stringify(START);
+        paint(START);
+        setState("Your move");
       }
+      return;
+    }
 
-      var board = decode(read.sigs);
-      var key = JSON.stringify(board);
-      if (key !== lastBoard) {
-        lastBoard = key;
-        paint(board);
-        if (waiting) {
-          waiting = false;
-          setState("Your move", false);
-          enableInput();
-        }
+    var board = decode(sigs);
+    var key = JSON.stringify(board);
+    if (key !== lastBoard) {
+      lastBoard = key;
+      paint(board);
+      if (waiting) {
+        waiting = false;
+        setState("Your move");
+        enableInput();
       }
-    }).catch(function () {});
+    }
   }
 
-  function setState(text, busy) {
-    stateEl.innerHTML = busy ? "<b>" + text + "</b>" : text;
+  function setState(text) {
+    stateEl.textContent = text;
   }
 
   function enableInput() {
@@ -852,7 +847,7 @@ AttoChess.com</code></pre>
     if (booting) return;
     booting = true;
     startBtn.disabled = true;
-    setState("Loading", true);
+    setState("Loading");
 
     if (typeof window.Dos !== "function") {
       showError("js-dos did not load.", "Could not fetch the emulator from v8.js-dos.com.");
@@ -866,16 +861,24 @@ AttoChess.com</code></pre>
         kiosk: true,
         autoStart: true,
         noCloud: true,
-        imageRendering: "pixelated",
         renderAspect: "Fit",
         onEvent: function (event, commandInterface) {
-          if (event === "ci-ready") {
-            ci = commandInterface;
-            overlay.remove();
-            setState("Reading board", true);
-            setInterval(tick, POLL);
-            setTimeout(function () { moveInput.focus(); }, 200);
-          }
+          if (event !== "ci-ready") return;
+          ci = commandInterface;
+          overlay.remove();
+          setState("Your move");
+          enableInput();
+
+          ci.events().onFrameSize(function (w, h) {
+            frameW = w;
+            frameH = h;
+          });
+          ci.events().onFrame(function (rgb, rgba) {
+            if (rgb) { frame = rgb; channels = 3; }
+            else if (rgba) { frame = rgba; channels = 4; }
+          });
+
+          setInterval(tick, POLL);
         }
       });
     } catch (e) {
@@ -892,7 +895,7 @@ AttoChess.com</code></pre>
     }
     disableInput();
     waiting = true;
-    setState("Black is thinking", true);
+    setState("Black is thinking");
 
     text.split("").forEach(function (ch, i) {
       setTimeout(function () {
@@ -900,6 +903,14 @@ AttoChess.com</code></pre>
       }, i * 120);
     });
     moveInput.value = "";
+
+    setTimeout(function () {
+      if (waiting) {
+        waiting = false;
+        setState("Your move");
+        enableInput();
+      }
+    }, 4000);
   }
 
   buildGrid();
