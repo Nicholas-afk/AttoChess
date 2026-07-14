@@ -48,6 +48,8 @@ body{
 
 ::selection{ background:var(--amber); color:var(--ink); }
 
+.visually-hidden{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
 .wrap{ width:100%; max-width:var(--wide); margin:0 auto; padding:0 var(--pad); }
 .prose{ max-width:var(--measure); }
 
@@ -142,55 +144,110 @@ pre .k{ color:var(--amber-hi); }
 
 .machine{ padding-top:0; border-top:0; }
 
-.plate{
-  display:flex; flex-wrap:wrap; gap:.5rem;
-  font-family:var(--mono); font-size:.6875rem;
-  letter-spacing:.12em; text-transform:uppercase;
-  color:var(--amber-lo);
+.board-panel{
   border:1px solid var(--rule);
   border-top:2px solid var(--amber-dim);
-  border-bottom:0;
-  padding:.55rem .7rem;
-}
-.plate .sep{ color:var(--rule); }
-
-.screen{
-  position:relative;
-  aspect-ratio:4 / 3;
-  width:100%;
   background:#000;
-  border:1px solid var(--rule);
+}
+
+.stage{
+  position:relative;
+  width:100%;
+  aspect-ratio:4 / 3;
+  max-height:70vh;
+  background:#000;
   overflow:hidden;
 }
-#dos{ position:absolute; inset:0; }
+#dos{
+  position:absolute; inset:0;
+  transform-origin:0 0;
+}
 #dos canvas{
   image-rendering:pixelated;
-  filter:sepia(.6) saturate(1.7) hue-rotate(-12deg) brightness(1.05) contrast(1.05);
+  filter:sepia(.62) saturate(2.1) hue-rotate(-12deg) brightness(1.08) contrast(1.08);
 }
+.stage.is-raw #dos{ transform:none !important; }
 
-.screen__msg{
+.overlay{
   position:absolute; inset:0;
-  z-index:2;
-  pointer-events:none;
-  background:var(--ink);
-  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.5rem;
+  z-index:3;
+  background:#000;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1.1rem;
   text-align:center; padding:2rem;
+}
+.overlay p{
+  margin:0;
+  max-width:26rem;
   font-family:var(--mono); font-size:.8125rem; line-height:1.7;
   color:var(--muted);
 }
-.screen__msg b{ display:block; color:var(--amber); font-weight:600; }
-.screen__msg ul{ margin:0; padding:0; list-style:none; text-align:left; max-width:34rem; }
-.screen__msg li{ margin:0 0 .3rem; }
-.screen__msg code{ font-size:1em; }
+.overlay.is-error{ gap:.6rem; }
+.overlay.is-error strong{ color:var(--amber); font-weight:600; }
 
-.howto{
-  margin-top:.85rem;
+.btn{
   font-family:var(--mono);
-  font-size:.75rem;
-  line-height:1.9;
+  font-size:.8125rem;
+  font-weight:500;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--ink);
+  background:var(--amber);
+  border:1px solid var(--amber);
+  padding:.7rem 1.6rem;
+  cursor:pointer;
+}
+.btn:hover{ background:var(--amber-hi); border-color:var(--amber-hi); }
+.btn:focus-visible{ outline:2px solid var(--amber-hi); outline-offset:3px; }
+.btn:disabled{ opacity:.4; cursor:default; }
+.btn--ghost{
+  color:var(--amber);
+  background:none;
+  border:1px solid var(--rule);
+}
+.btn--ghost:hover{ background:none; border-color:var(--amber-dim); color:var(--amber-hi); }
+
+.console{
+  display:flex; flex-wrap:wrap; align-items:center; gap:.6rem;
+  border:1px solid var(--rule);
+  border-top:0;
+  padding:.8rem;
+}
+.console__prompt{
+  font-family:var(--mono); font-size:.9375rem;
+  color:var(--amber-dim);
+  padding-left:.25rem;
+}
+.console input{
+  flex:1 1 8rem;
+  min-width:7rem;
+  font-family:var(--mono);
+  font-size:1rem;
+  letter-spacing:.28em;
+  color:var(--amber-hi);
+  background:var(--panel);
+  border:1px solid var(--rule);
+  padding:.6rem .75rem;
+  text-transform:lowercase;
+}
+.console input::placeholder{ color:#5C523F; letter-spacing:.28em; }
+.console input:focus{ outline:none; border-color:var(--amber-dim); }
+.console input:disabled{ opacity:.45; }
+
+.status{
+  display:flex; flex-wrap:wrap; justify-content:space-between; gap:.5rem 1.5rem;
+  margin-top:.8rem;
+  font-family:var(--mono); font-size:.75rem;
   color:var(--muted);
 }
-.howto b{ color:var(--text); font-weight:500; }
+.status__legend b{ color:var(--amber); font-weight:500; }
+.status__view{
+  font-family:var(--mono); font-size:.75rem;
+  color:var(--muted);
+  background:none; border:0; padding:0;
+  cursor:pointer;
+  border-bottom:1px solid var(--rule);
+}
+.status__view:hover{ color:var(--amber); border-bottom-color:var(--amber-dim); }
 
 .lineage{ margin:1.5rem 0 0; }
 
@@ -276,28 +333,27 @@ footer{ border-top:1px solid var(--rule); padding:2.75rem 0 3.5rem; }
 
 <section class="machine" aria-label="Play AttoChess">
   <div class="wrap">
-    <div class="plate">
-      <span>AttoChess.com</span>
-      <span class="sep">·</span>
-      <span>278 bytes resident</span>
-      <span class="sep">·</span>
-      <span>you play White</span>
-    </div>
-    <div class="screen">
-      <div id="dos"></div>
-      <div class="screen__msg" id="dos-msg" hidden>
-        <b id="dos-msg-title">The emulator did not load.</b>
-        <ul>
-          <li>Serve the page over http, not file:// — try <code>python3 -m http.server</code></li>
-          <li>Put <code>attochess.zip</code> in the same folder as <code>index.html</code></li>
-          <li>Check that v8.js-dos.com is reachable</li>
-        </ul>
+    <div class="board-panel">
+      <div class="stage" id="stage">
+        <div id="dos"></div>
+        <div class="overlay" id="overlay">
+          <button class="btn" id="start">Start game</button>
+          <p>Loads the 278-byte program in an emulated DOS machine. You play White.</p>
+        </div>
       </div>
     </div>
-    <p class="howto">
-      <b>Move:</b> four characters, source then destination — e.g. <code>e2e4</code>.
-      <b>Keyboard:</b> click the screen to focus it.
-    </p>
+
+    <div class="console">
+      <span class="console__prompt">&gt;</span>
+      <label class="visually-hidden" for="move">Your move</label>
+      <input id="move" type="text" maxlength="4" placeholder="e2e4" autocomplete="off" spellcheck="false" disabled>
+      <button class="btn" id="send" disabled>Play move</button>
+    </div>
+
+    <div class="status">
+      <span class="status__legend"><b>K N B P Q R</b> White &nbsp;·&nbsp; <b>k n b p q r</b> Black</span>
+      <button class="status__view" id="view">Show full terminal</button>
+    </div>
   </div>
 </section>
 
@@ -521,60 +577,115 @@ AttoChess.com</code></pre>
 
 <script>
 (function () {
-  var mount = document.getElementById("dos");
-  var msg = document.getElementById("dos-msg");
-  var msgTitle = document.getElementById("dos-msg-title");
-  var started = false;
-  var waited = 0;
-  var LIMIT = 15000;
-  var STEP = 150;
+  var VIEW = { col0: 0, cols: 13, row0: 6, rows: 19 };
+  var COLUMNS = 80;
+  var ROWS = 25;
 
-  function fail(reason) {
-    if (started) return;
-    started = true;
-    msgTitle.textContent = reason;
-    msg.hidden = false;
+  var stage = document.getElementById("stage");
+  var mount = document.getElementById("dos");
+  var overlay = document.getElementById("overlay");
+  var startBtn = document.getElementById("start");
+  var moveInput = document.getElementById("move");
+  var sendBtn = document.getElementById("send");
+  var viewBtn = document.getElementById("view");
+
+  var ci = null;
+  var booting = false;
+
+  function applyView() {
+    var s = ROWS / VIEW.rows;
+    var tx = 100 * ((1 - s * VIEW.cols / COLUMNS) / (2 * s) - VIEW.col0 / COLUMNS);
+    var ty = -100 * VIEW.row0 / ROWS;
+    mount.style.transform = "scale(" + s + ") translate(" + tx + "%, " + ty + "%)";
+  }
+
+  function showError(title, detail) {
+    overlay.className = "overlay is-error";
+    overlay.innerHTML = "";
+    var h = document.createElement("p");
+    h.innerHTML = "<strong>" + title + "</strong>";
+    var d = document.createElement("p");
+    d.textContent = detail;
+    overlay.appendChild(h);
+    overlay.appendChild(d);
+  }
+
+  function enableInput() {
+    moveInput.disabled = false;
+    sendBtn.disabled = false;
+    moveInput.focus();
   }
 
   function boot() {
-    if (started) return;
-    started = true;
+    if (booting) return;
+    booting = true;
+    startBtn.disabled = true;
+
+    if (typeof window.Dos !== "function") {
+      showError("js-dos did not load.", "The emulator script could not be fetched from v8.js-dos.com. Reload, or serve this page over http rather than opening the file directly.");
+      return;
+    }
+
     try {
       Dos(mount, {
         url: "attochess.zip",
-        theme: "luxury",
-        imageRendering: "pixelated",
+        theme: "black",
+        kiosk: true,
         autoStart: true,
-        noCloud: true
+        noCloud: true,
+        imageRendering: "pixelated",
+        renderAspect: "Fit",
+        onEvent: function (event, commandInterface) {
+          if (event === "ci-ready") {
+            ci = commandInterface;
+            applyView();
+            overlay.remove();
+            enableInput();
+          }
+        }
       });
-      if (msg && msg.parentNode) {
-        msg.parentNode.removeChild(msg);
-      }
     } catch (e) {
-      started = false;
-      fail("The emulator failed to start: " + e.message);
+      showError("The emulator failed to start.", String(e && e.message ? e.message : e));
     }
   }
 
-  function poll() {
-    if (typeof window.Dos === "function") {
-      boot();
+  function sendMove() {
+    if (!ci) return;
+    var text = moveInput.value.trim().toLowerCase();
+    if (!/^[a-h][1-8][a-h][1-8]$/.test(text)) {
+      moveInput.select();
       return;
     }
-    waited += STEP;
-    if (waited >= LIMIT) {
-      fail("js-dos did not load from the CDN.");
-      return;
-    }
-    setTimeout(poll, STEP);
+
+    moveInput.disabled = true;
+    sendBtn.disabled = true;
+
+    text.split("").forEach(function (ch, i) {
+      setTimeout(function () {
+        ci.simulateKeyPress(ch.charCodeAt(0));
+      }, i * 140);
+    });
+
+    setTimeout(function () {
+      moveInput.value = "";
+      moveInput.disabled = false;
+      sendBtn.disabled = false;
+      moveInput.focus();
+    }, text.length * 140 + 120);
   }
 
-  if (document.readyState === "complete") {
-    poll();
-  } else {
-    window.addEventListener("load", poll);
-    setTimeout(poll, 1000);
-  }
+  startBtn.addEventListener("click", boot);
+  sendBtn.addEventListener("click", sendMove);
+  moveInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      sendMove();
+    }
+  });
+  viewBtn.addEventListener("click", function () {
+    var raw = stage.classList.toggle("is-raw");
+    viewBtn.textContent = raw ? "Show board only" : "Show full terminal";
+  });
 })();
 </script>
 
