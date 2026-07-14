@@ -861,6 +861,13 @@ AttoChess.com</code></pre>
         kiosk: true,
         autoStart: true,
         noCloud: true,
+        // Run the emulator on the render thread rather than a worker. The worker
+        // backend needs SharedArrayBuffer, which requires cross-origin isolation
+        // (COOP+COEP headers) that GitHub Pages cannot send — so with the default
+        // worker backend the emulator never reaches "ci-ready" there and the whole
+        // machine silently hangs on "Loading". The direct backend has no such
+        // requirement and boots anywhere.
+        worker: false,
         renderAspect: "Fit",
         onEvent: function (event, commandInterface) {
           if (event !== "ci-ready") return;
