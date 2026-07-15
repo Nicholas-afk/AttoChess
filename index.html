@@ -131,7 +131,7 @@ pre .k{ color:var(--amber-hi); }
 
 .title{
   font-family:var(--mono);
-  font-size:1.75rem;
+  font-size:clamp(2.5rem, 7vw, 3.5rem);
   font-weight:600;
   letter-spacing:-0.02em;
   margin:0 0 .5rem;
@@ -152,10 +152,9 @@ pre .k{ color:var(--amber-hi); }
 }
 .byline b{ color:var(--amber); font-weight:500; }
 
-.machine{ padding-top:0; border-top:0; }
-/* Keep the whole machine (board + console + status) hugging the board width so it
-   reads as one compact unit instead of a narrow board floating in a wide panel. */
-.machine #machine{ max-width:31rem; }
+/* Keep the machine (board + console + status) as one unit, but let it stretch a bit
+   wider than the reading measure so the section doesn't look skinny beside the prose. */
+.machine #machine{ max-width:42rem; }
 
 .board-panel{
   border:1px solid var(--rule);
@@ -170,10 +169,10 @@ pre .k{ color:var(--amber-hi); }
    regardless of the surrounding label tracks. */
 .board-wrap{
   display:grid;
-  grid-template-columns:1.15rem 1fr;
-  grid-template-rows:auto 1.15rem;
+  grid-template-columns:1.3rem 1fr;
+  grid-template-rows:auto 1.3rem;
   gap:.3rem;
-  width:100%; max-width:26rem;
+  width:100%; max-width:32rem;
   margin:0 auto;
 }
 
@@ -250,6 +249,11 @@ pre .k{ color:var(--amber-hi); }
   color:var(--muted);
 }
 .overlay.is-error strong{ color:var(--amber); font-weight:600; }
+
+/* End-of-game overlay: keep the final position faintly visible behind the message. */
+.overlay.is-end{ background:rgba(0,0,0,.86); }
+.overlay.is-end strong{ color:var(--amber-hi); font-weight:600; font-size:1.05rem; }
+.overlay.is-end .btn{ margin-top:.35rem; }
 
 .btn{
   font-family:var(--mono);
@@ -392,36 +396,6 @@ footer{ border-top:1px solid var(--rule); padding:2.75rem 0 3.5rem; }
   </div>
 </header>
 
-<section class="machine" aria-label="Play AttoChess">
-  <div class="wrap" id="machine">
-    <div class="board-panel">
-      <div class="board-wrap">
-        <div class="ranks" id="ranks"></div>
-        <div class="stage" id="stage">
-          <div class="grid" id="grid"></div>
-          <div class="overlay" id="overlay">
-            <button class="btn" id="start">Start game</button>
-            <p>Loads the 278-byte program in an emulated DOS machine. You play White.</p>
-          </div>
-        </div>
-        <div class="files" id="files"></div>
-      </div>
-    </div>
-
-    <div class="console">
-      <span class="console__prompt">&gt;</span>
-      <label class="visually-hidden" for="move">Your move</label>
-      <input id="move" type="text" maxlength="4" placeholder="e2e4" autocomplete="off" spellcheck="false" disabled>
-      <button class="btn" id="send" disabled>Play move</button>
-    </div>
-
-    <div class="status">
-      <span class="status__state" id="state">Not started</span>
-      <span>K N B P Q R White &nbsp;·&nbsp; k n b p q r Black</span>
-    </div>
-  </div>
-</section>
-
 <div class="emu" id="emu" aria-hidden="true"><div id="dos"></div></div>
 
 <section id="lineage">
@@ -470,6 +444,37 @@ footer{ border-top:1px solid var(--rule); padding:2.75rem 0 3.5rem; }
     <div class="note">
       <span class="note__label">Note</span>
       <p>AttoChess is not a byte-count stunt that only sets up a board. It boots, draws the position, reads your move from the keyboard, searches with real 4-ply recursion, replies with a legal move, and loops. The 278-byte figure is the assembled size of that whole program, verified byte-for-byte on the produced <code>.COM</code>.</p>
+    </div>
+  </div>
+</section>
+
+<section class="machine" aria-label="Play AttoChess">
+  <div class="wrap" id="machine">
+    <h2>Play AttoChess</h2>
+    <div class="board-panel">
+      <div class="board-wrap">
+        <div class="ranks" id="ranks"></div>
+        <div class="stage" id="stage">
+          <div class="grid" id="grid"></div>
+          <div class="overlay" id="overlay">
+            <button class="btn" id="start">Start game</button>
+            <p>Loads the 278-byte program in an emulated DOS machine. You play White.</p>
+          </div>
+        </div>
+        <div class="files" id="files"></div>
+      </div>
+    </div>
+
+    <div class="console">
+      <span class="console__prompt">&gt;</span>
+      <label class="visually-hidden" for="move">Your move</label>
+      <input id="move" type="text" maxlength="4" placeholder="e2e4" autocomplete="off" spellcheck="false" disabled>
+      <button class="btn" id="send" disabled>Play move</button>
+    </div>
+
+    <div class="status">
+      <span class="status__state" id="state">Not started</span>
+      <span>K N B P Q R White &nbsp;·&nbsp; k n b p q r Black</span>
     </div>
   </div>
 </section>
@@ -680,6 +685,17 @@ AttoChess.com</code></pre>
   var frameW = 0;
   var frameH = 0;
   var channels = 4;
+
+  // The 278-byte engine has no notion of checkmate, stalemate, draw, or resignation:
+  // when the side to move has no move scoring >= 0 it just halts on `jz $` (an infinite
+  // self-loop) with no message. So a finished game shows up here only as the emulator
+  // going silent — Black never replies. We detect that silence and end the game cleanly
+  // rather than leaving the player waiting on "Black is thinking" forever.
+  var gameOver = false;
+  var moveTimer = null;
+  // How long to wait for Black's reply before concluding the engine has halted. Black's
+  // 4-ply search is fast, so several seconds with no board change means the game is over.
+  var REPLY_TIMEOUT = 9000;
 
   var FILES = ["a","b","c","d","e","f","g","h"];
 
@@ -898,11 +914,41 @@ AttoChess.com</code></pre>
       shown = cloneBoard(board);
       paint(shown);
       if (waiting) {
+        // Black replied — the game continues.
         waiting = false;
+        if (moveTimer) { clearTimeout(moveTimer); moveTimer = null; }
         setState("Your move");
         enableInput();
       }
     }
+  }
+
+  // The engine halted instead of replying: the game is over. AttoChess can't distinguish
+  // checkmate from stalemate or a draw (a side with no move scoring >= 0 simply halts), and
+  // there's no in-engine signal to read, so we state the outcome honestly and stop asking
+  // for moves. The DOS program is now stuck in its halt loop; a new game means reloading.
+  function endGame() {
+    if (gameOver) return;
+    gameOver = true;
+    if (moveTimer) { clearTimeout(moveTimer); moveTimer = null; }
+    disableInput();
+    moveInput.placeholder = "game over";
+    setState("Game over");
+    showEndOverlay();
+  }
+
+  function showEndOverlay() {
+    if (!document.getElementById("stage")) return;
+    var el = document.createElement("div");
+    el.className = "overlay is-end";
+    el.innerHTML =
+      "<p><strong>Game over</strong></p>" +
+      "<p>The engine has no reply — this is checkmate, stalemate, or a draw. " +
+      "AttoChess halts on any of them without distinguishing which.</p>" +
+      "<button class=\"btn\" id=\"again\">New game</button>";
+    document.getElementById("stage").appendChild(el);
+    var again = document.getElementById("again");
+    if (again) again.addEventListener("click", function () { location.reload(); });
   }
 
   // Find the from/to squares between two positions (a square that emptied vs one that
@@ -998,7 +1044,7 @@ AttoChess.com</code></pre>
   }
 
   function sendMove() {
-    if (!ci) return;
+    if (!ci || gameOver) return;
     var text = moveInput.value.trim().toLowerCase();
     if (!/^[a-h][1-8][a-h][1-8]$/.test(text)) {
       moveInput.select();
@@ -1028,13 +1074,17 @@ AttoChess.com</code></pre>
     });
     moveInput.value = "";
 
-    setTimeout(function () {
+    // Wait for Black's reply. tick() clears `waiting` and cancels this timer the moment
+    // the board changes. If it never fires, the engine has halted on a terminal position
+    // (checkmate/stalemate/draw — it can't tell which) and the game is over.
+    if (moveTimer) clearTimeout(moveTimer);
+    moveTimer = setTimeout(function () {
+      moveTimer = null;
       if (waiting) {
         waiting = false;
-        setState("Your move");
-        enableInput();
+        endGame();
       }
-    }, 4000);
+    }, REPLY_TIMEOUT);
   }
 
   buildGrid();
