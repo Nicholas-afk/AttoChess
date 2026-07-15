@@ -1248,6 +1248,36 @@ AttoChess.com</code></pre>
     }
   }
 
+  // js-dos keycodes: KBD_a..KBD_z = 65..90, KBD_0..KBD_9 = 48..57
+  // (see jsdos/js-dos.js keycode table). A move is only [a-h][1-8]{2},
+  // so the char code of the uppercased letter / the digit is the keycode.
+  function keyCode(ch) {
+    return ch.toUpperCase().charCodeAt(0);
+  }
+
+  // Feed the move one keystroke at a time. simulateKeyPress() presses a key
+  // for only ~16 emulated ms, a pulse narrow enough that DOSBox's keyboard
+  // scan can miss it under real-time frame pacing — a dropped key then shifts
+  // every later character into an earlier slot (g1f3 -> d3, etc). We instead
+  // drive an explicit key-down, hold, key-up per character with generous
+  // spacing so each keystroke is unambiguously registered and consumed by the
+  // program's blocking int 21h/AH=01h read before the next one is sent.
+  function typeMove(text) {
+    var codes = [];
+    for (var i = 0; i < text.length; i++) codes.push(keyCode(text.charAt(i)));
+
+    var i2 = 0;
+    (function next() {
+      if (!ci || i2 >= codes.length) return;
+      var code = codes[i2++];
+      ci.sendKeyEvent(code, true);   // key down
+      setTimeout(function () {
+        if (ci) ci.sendKeyEvent(code, false); // key up
+        setTimeout(next, KEY_STAGGER);
+      }, KEY_STAGGER);
+    })();
+  }
+
   function sendMove() {
     if (!ci || gameOver || waiting) return;
 
@@ -1271,13 +1301,7 @@ AttoChess.com</code></pre>
     }
     setState("Black is thinking");
 
-    for (var i = 0; i < text.length; i++) {
-      (function (ch, idx) {
-        setTimeout(function () {
-          if (ci) ci.simulateKeyPress(ch.toUpperCase().charCodeAt(0));
-        }, idx * KEY_STAGGER);
-      })(text.charAt(i), i);
-    }
+    typeMove(text);
     moveInput.value = "";
 
     clearMoveTimer();
