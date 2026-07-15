@@ -784,19 +784,39 @@ AttoChess.com</code></pre>
       return list;
     }
 
+    // A dense row is one that looks like a board rank: >=6 lit cells spanning <=9 columns.
+    function denseRow(r) {
+      var f = filled(r);
+      return (f.length >= 6 && (f[f.length - 1] - f[0]) <= 9) ? f : null;
+    }
+
+    // Scan up from the bottom for the white back rank (rank 1). The program echoes your
+    // typed move and prompts on the line(s) just below the board, and the console can
+    // scroll — either can leave a stray dense row beneath rank 1 that naively reads as
+    // rank 1 and shifts the whole board up by a rank. So we don't just take the lowest
+    // dense row: we require it to be the bottom of a real 8-rank board, i.e. rank 8
+    // (seven ranks up) is also dense and the row just above rank 8 is NOT — that empty
+    // border above the board is what an echo/scroll line below it can never fake.
     var baseRow = -1;
     var col0 = 0;
+    var spacing = 1;
     for (var r = ROWS - 1; r >= 7; r--) {
-      var f = filled(r);
-      if (f.length >= 6 && (f[f.length - 1] - f[0]) <= 9) {
-        baseRow = r;
-        col0 = f[0];
-        break;
-      }
+      var f = denseRow(r);
+      if (!f) continue;
+      // Determine rank spacing (single- vs double-spaced rendering) from the row above.
+      var sp = denseRow(r - 1) ? 1 : 2;
+      var topR = r - 7 * sp;
+      if (topR < 0) continue;
+      // rank 8 must be dense, and the row above rank 8 must be empty (the board's top border).
+      if (!denseRow(topR)) continue;
+      if (topR - 1 >= 0 && denseRow(topR - 1)) continue;
+      baseRow = r;
+      col0 = f[0];
+      spacing = sp;
+      break;
     }
     if (baseRow < 0) return null;
 
-    var spacing = filled(baseRow - 1).length >= 6 ? 1 : 2;
     var top = baseRow - 7 * spacing;
     if (top < 0) return null;
 
@@ -859,6 +879,16 @@ AttoChess.com</code></pre>
     }
 
     var board = decode(sigs);
+
+    // A correctly-aligned read only ever yields known glyphs. Any "?" means the board
+    // was sampled at the wrong offset (e.g. the console scrolled mid-frame), so discard
+    // this frame rather than paint a garbled position — the next tick will read cleanly.
+    for (var r = 0; r < 8; r++) {
+      for (var c = 0; c < 8; c++) {
+        if (board[r][c] === "?") return;
+      }
+    }
+
     var key = JSON.stringify(board);
     if (key !== lastBoard) {
       lastBoard = key;
