@@ -19,12 +19,15 @@
 
 <style>
 :root{
-  --ink:      #0D0B08;
+  --ink:      #0C0A07;
+  --ink-2:    #100D09;
   --panel:    #16130D;
-  --rule:     #322B20;
-  --text:     #DFD8C9;
+  --rule:     #2C261C;
+  --rule-hi:  #3D3527;
+  --text:     #DAD3C4;
   --heading:  #F5F0E4;
-  --muted:    #948A79;
+  --muted:    #8C8271;
+  --faint:    #5C5445;
   --amber:    #E8A33A;
   --amber-lo: #B8873A;
   --amber-hi: #F5C069;
@@ -33,9 +36,9 @@
   --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
 
-  --measure: 40rem;
-  --wide: 56rem;
-  --pad: clamp(1.25rem, 4vw, 2.25rem);
+  --measure: 42rem;
+  --wide: 60rem;
+  --pad: clamp(1.25rem, 4vw, 2.5rem);
 }
 
 *,*::before,*::after{ box-sizing:border-box; }
@@ -48,9 +51,14 @@ body{
   color:var(--text);
   font-family:var(--sans);
   font-size:16.5px;
-  line-height:1.7;
+  line-height:1.72;
   -webkit-font-smoothing:antialiased;
   text-rendering:optimizeLegibility;
+  /* faint grid texture — makes it feel drafted, not generated */
+  background-image:
+    linear-gradient(var(--ink-2) 0 0),
+    repeating-linear-gradient(90deg, transparent 0 3rem, rgba(232,163,58,.018) 3rem 3.0625rem);
+  background-blend-mode:normal;
 }
 
 ::selection{ background:var(--amber); color:var(--ink); }
@@ -60,23 +68,42 @@ body{
 .wrap{ width:100%; max-width:var(--wide); margin:0 auto; padding:0 var(--pad); }
 .prose{ max-width:var(--measure); }
 
-section{ padding:clamp(3rem, 6vw, 4.5rem) 0; }
+/* every section is a bordered plate, stacked with hairline rules between them */
+section{
+  padding:clamp(3.25rem, 7vw, 5.5rem) 0;
+  border-top:1px solid var(--rule);
+}
+section + section{ border-top:1px dashed var(--rule); }
 
 h1,h2,h3{ color:var(--heading); font-weight:600; letter-spacing:-0.005em; }
 
+/* section headings read like a spec sheet: [ NN ] LABEL ─────── */
 h2{
   position:relative;
-  font-family:var(--sans);
-  font-size:1.375rem;
-  line-height:1.3;
-  margin:0 0 1.25rem;
-  padding-top:1rem;
+  display:flex; align-items:center; gap:.9rem;
+  font-family:var(--mono);
+  font-size:1.0625rem;
+  font-weight:600;
+  letter-spacing:.02em;
+  text-transform:uppercase;
+  color:var(--heading);
+  margin:0 0 2rem;
+  padding:0;
 }
-h2::before{
+h2::after{
   content:"";
-  position:absolute; top:0; left:0;
-  width:30px; height:2px;
-  background:var(--amber);
+  flex:1;
+  height:0;
+  border-top:1px dashed var(--rule-hi);
+}
+h2 .idx{
+  font-size:.75rem;
+  font-weight:500;
+  letter-spacing:.1em;
+  color:var(--amber);
+  border:1px solid var(--amber-dim);
+  padding:.2em .55em;
+  flex:none;
 }
 h3{
   font-family:var(--mono);
@@ -87,16 +114,21 @@ h3{
   margin:0 0 .65rem;
 }
 
-p{ margin:0 0 1.1rem; }
+p{ margin:0 0 1.15rem; }
 strong{ color:var(--heading); font-weight:600; }
 
 a{ color:var(--amber); text-decoration:none; border-bottom:1px solid var(--amber-dim); }
 a:hover{ border-bottom-color:var(--amber); }
 a:focus-visible{ outline:2px solid var(--amber); outline-offset:2px; }
 
-ul{ margin:0 0 1.1rem; padding-left:1.1rem; }
-li{ margin-bottom:.55rem; }
-li::marker{ color:var(--muted); }
+ul{ margin:0 0 1.15rem; padding-left:0; list-style:none; }
+li{ position:relative; margin-bottom:.6rem; padding-left:1.4rem; }
+li::before{
+  content:"—";
+  position:absolute; left:0;
+  color:var(--amber-lo);
+  font-family:var(--mono);
+}
 
 code{
   font-family:var(--mono);
@@ -108,15 +140,17 @@ code{
 }
 
 pre{
+  position:relative;
   font-family:var(--mono);
   font-size:.8125rem;
-  line-height:1.7;
+  line-height:1.75;
   color:var(--amber-lo);
-  background:var(--panel);
+  background:
+    linear-gradient(var(--panel) 0 0) padding-box;
   border:1px solid var(--rule);
   border-left:2px solid var(--amber-dim);
-  padding:1.1rem 1.25rem;
-  margin:1.35rem 0;
+  padding:1.25rem 1.35rem;
+  margin:1.5rem 0;
   overflow-x:auto;
   tab-size:4;
 }
@@ -124,58 +158,92 @@ pre code{ background:none; border:0; padding:0; color:inherit; font-size:inherit
 pre .c{ color:#7C6B52; }
 pre .k{ color:var(--amber-hi); }
 
-.masthead{ padding:clamp(2.75rem,6vw,4rem) 0 1.75rem; }
+/* ── masthead ─────────────────────────────────────────── */
+.masthead{
+  padding:clamp(3rem,7vw,5rem) 0 clamp(2rem,4vw,3rem);
+  border-top:0;
+}
+.masthead__tag{
+  font-family:var(--mono);
+  font-size:.6875rem;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--faint);
+  margin:0 0 1.25rem;
+}
+.masthead__tag b{ color:var(--amber-lo); font-weight:500; }
 
 .title{
   font-family:var(--mono);
-  font-size:clamp(2.5rem, 7vw, 3.5rem);
+  font-size:clamp(2.75rem, 9vw, 4.5rem);
   font-weight:600;
-  letter-spacing:-0.02em;
-  margin:0 0 .5rem;
+  letter-spacing:-0.03em;
+  line-height:.95;
+  margin:0 0 1.25rem;
   color:var(--heading);
 }
 .summary{
-  max-width:38rem;
-  margin:0 0 1.25rem;
-  font-size:1.0625rem;
+  max-width:40rem;
+  margin:0 0 2.25rem;
+  font-size:1.125rem;
+  line-height:1.65;
 }
-.byline{
-  font-family:var(--mono);
-  font-size:.75rem;
-  letter-spacing:.06em;
-  color:var(--muted);
-  border-top:1px solid var(--rule);
-  padding-top:.75rem;
-}
-.byline b{ color:var(--amber); font-weight:500; }
 
-.machine #machine{ max-width:52rem; }
-.machine__title{ text-align:center; }
-.machine__title::before{ left:50%; transform:translateX(-50%); }
+/* the byline becomes a hard spec strip: label / value cells */
+.specs{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(8.5rem, 1fr));
+  border:1px solid var(--rule);
+  border-bottom:0;
+}
+.spec{
+  border-bottom:1px solid var(--rule);
+  border-right:1px solid var(--rule);
+  padding:.7rem .9rem;
+}
+.spec dt{
+  font-family:var(--mono);
+  font-size:.625rem;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--faint);
+  margin:0 0 .3rem;
+}
+.spec dd{
+  margin:0;
+  font-family:var(--mono);
+  font-size:.9375rem;
+  color:var(--amber-hi);
+  font-variant-numeric:tabular-nums;
+}
+.spec dd.plain{ color:var(--text); font-size:.8125rem; letter-spacing:.02em; }
 
 .machine__grid{
   display:grid;
-  grid-template-columns:minmax(0, 32rem) minmax(0, 15rem);
-  gap:clamp(1.5rem, 4vw, 2.75rem);
-  align-items:center;
-  justify-content:center;
+  grid-template-columns:minmax(0, 33rem) minmax(0, 17rem);
+  gap:clamp(1.75rem, 4vw, 3rem);
+  align-items:start;
 }
 .machine__play{ min-width:0; }
 
-.machine__guide{ align-self:center; }
+.machine__guide{
+  align-self:start;
+  border-left:1px dashed var(--rule-hi);
+  padding-left:clamp(1.25rem, 3vw, 1.75rem);
+}
 .machine__guide h3{ margin-top:0; }
 .machine__guide p{
   font-size:.9375rem;
-  line-height:1.65;
+  line-height:1.68;
   color:var(--muted);
 }
 .machine__guide p:last-child{ margin-bottom:0; }
 .machine__guide strong{ color:var(--text); }
 .machine__guide em{ color:var(--amber-hi); font-style:normal; }
 
-@media (max-width:720px){
-  .machine__grid{ grid-template-columns:minmax(0, 32rem); }
-  .machine__guide{ max-width:32rem; margin:0 auto; }
+@media (max-width:760px){
+  .machine__grid{ grid-template-columns:minmax(0, 33rem); justify-content:start; }
+  .machine__guide{ max-width:33rem; border-left:0; padding-left:0; padding-top:1.5rem; border-top:1px dashed var(--rule-hi); }
 }
 
 .board-panel{
@@ -317,27 +385,34 @@ pre .k{ color:var(--amber-hi); }
 
 .status{
   display:flex; flex-wrap:wrap; justify-content:space-between; gap:.5rem 1.5rem;
-  margin-top:.8rem;
+  margin-top:1rem;
+  padding-top:.85rem;
+  border-top:1px dashed var(--rule);
   font-family:var(--mono); font-size:.75rem;
   color:var(--muted);
 }
 .status__state b{ color:var(--amber); font-weight:500; }
 
-.lineage{ margin:1.5rem 0 0; }
+.lineage{ margin:2rem 0 0; }
 
-.entry{ padding:.85rem 0; border-bottom:1px solid var(--rule); }
+.entry{ padding:1.05rem 0; border-bottom:1px solid var(--rule); }
 .entry:first-child{ border-top:1px solid var(--rule); }
 
 .entry__head{
   display:flex; align-items:baseline; justify-content:space-between; gap:1rem;
   font-family:var(--mono); font-size:.8125rem;
-  margin-bottom:.5rem;
+  margin-bottom:.55rem;
 }
 .entry__name{ color:var(--text); font-weight:500; }
 .entry__bytes{ color:var(--muted); font-variant-numeric:tabular-nums; }
 .entry__meta{ color:var(--muted); font-size:.75rem; text-align:right; }
 
-.bar{ height:10px; border:1px solid var(--rule); }
+/* bars: hard-edged, blocky, with a hatched empty track */
+.bar{
+  height:12px;
+  border:1px solid var(--rule);
+  background:repeating-linear-gradient(45deg, transparent 0 4px, rgba(232,163,58,.05) 4px 5px);
+}
 .bar span{ display:block; height:100%; background:var(--amber-dim); }
 
 .entry.is-record .entry__name,
@@ -348,16 +423,17 @@ pre .k{ color:var(--amber-hi); }
 .scale{
   display:flex; justify-content:space-between;
   font-family:var(--mono); font-size:.6875rem; letter-spacing:.08em;
-  color:var(--muted);
-  margin-top:.6rem;
+  color:var(--faint);
+  margin-top:.7rem;
 }
 
 .note{
+  position:relative;
   border:1px solid var(--rule);
   border-left:2px solid var(--amber);
   background:var(--panel);
-  padding:1.1rem 1.25rem;
-  margin:1.75rem 0 0;
+  padding:1.25rem 1.4rem;
+  margin:2rem 0 0;
   max-width:var(--measure);
   font-size:.9375rem;
 }
@@ -365,25 +441,44 @@ pre .k{ color:var(--amber-hi); }
 .note__label{
   display:block;
   font-family:var(--mono); font-size:.6875rem; font-weight:500;
-  letter-spacing:.14em; text-transform:uppercase; color:var(--amber);
-  margin-bottom:.45rem;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--amber);
+  margin-bottom:.55rem;
 }
 
-.opt{ padding-top:2.25rem; }
-.opt:first-of-type{ padding-top:.75rem; }
+/* optimizations: each is a numbered entry with a hanging tab */
+.opt{
+  padding-top:2.75rem;
+  margin-top:2.75rem;
+  border-top:1px dashed var(--rule);
+}
+.opt:first-of-type{ padding-top:.5rem; margin-top:.5rem; border-top:0; }
 .opt__num{
-  display:block;
+  display:inline-block;
   font-family:var(--mono); font-size:.6875rem; font-weight:500;
-  letter-spacing:.14em; text-transform:uppercase; color:var(--amber-lo);
-  margin-bottom:.35rem;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--ink);
+  background:var(--amber-lo);
+  padding:.25em .6em;
+  margin-bottom:.85rem;
 }
 
-footer{ padding:2.75rem 0 3.5rem; }
-.credits{ display:grid; gap:.35rem; font-size:.9375rem; color:var(--muted); max-width:var(--measure); }
+footer{ padding:clamp(3rem,6vw,4rem) 0 3.5rem; }
+.credits{
+  display:grid; gap:0;
+  margin-top:1.5rem;
+  border:1px solid var(--rule);
+  font-size:.9375rem; color:var(--muted);
+  max-width:var(--measure);
+}
+.credits p{
+  margin:0;
+  padding:.85rem 1.1rem;
+  border-bottom:1px solid var(--rule);
+}
+.credits p:last-child{ border-bottom:0; }
 .credits strong{ color:var(--text); }
 .colophon{
-  font-family:var(--mono); font-size:.6875rem; color:var(--muted);
-  letter-spacing:.06em; margin-top:2.25rem;
+  font-family:var(--mono); font-size:.6875rem; color:var(--faint);
+  letter-spacing:.08em; margin-top:2.5rem;
 }
 
 @media (max-width:600px){
@@ -391,6 +486,7 @@ footer{ padding:2.75rem 0 3.5rem; }
   .entry__head{ flex-direction:column; align-items:flex-start; gap:.1rem; }
   .entry__meta{ text-align:left; }
   pre{ font-size:.75rem; }
+  h2{ font-size:.9375rem; }
 }
 
 @media (prefers-reduced-motion:reduce){
@@ -403,9 +499,17 @@ footer{ padding:2.75rem 0 3.5rem; }
 
 <header class="masthead">
   <div class="wrap">
+    <p class="masthead__tag">Smallest working chess engine &middot; <b>record: 278 bytes</b></p>
     <h1 class="title">AttoChess</h1>
     <p class="summary">A complete, playable chess program for 16-bit x86 DOS in 278 bytes. It draws the board, reads a move from the keyboard, searches four plies deep, and replies. That is the entire file.</p>
-    <p class="byline"><b>278 bytes</b> &nbsp;&middot;&nbsp; x86 DOS (.COM) &nbsp;&middot;&nbsp; 4-ply search &nbsp;&middot;&nbsp; MIT &nbsp;&middot;&nbsp; Nicholas Tanner, 2026</p>
+    <dl class="specs">
+      <div class="spec"><dt>Size</dt><dd>278 bytes</dd></div>
+      <div class="spec"><dt>Target</dt><dd>x86 DOS .COM</dd></div>
+      <div class="spec"><dt>Search</dt><dd>4-ply</dd></div>
+      <div class="spec"><dt>License</dt><dd class="plain">MIT</dd></div>
+      <div class="spec"><dt>Author</dt><dd class="plain">Nicholas Tanner</dd></div>
+      <div class="spec"><dt>Year</dt><dd>2026</dd></div>
+    </dl>
   </div>
 </header>
 
@@ -413,7 +517,7 @@ footer{ padding:2.75rem 0 3.5rem; }
 
 <section id="lineage">
   <div class="wrap">
-    <h2>Lineage</h2>
+    <h2><span class="idx">01</span>Lineage</h2>
     <div class="prose">
       <p>AttoChess is a size-optimized descendant of <strong>LeanChess</strong>. It plays the same game, in the same environment, using the same 0x88-style board and recursive minimax search, yet assembles to 278 bytes: ten bytes smaller than the 288-byte program that previously held the record for the smallest working chess engine.</p>
     </div>
@@ -463,7 +567,7 @@ footer{ padding:2.75rem 0 3.5rem; }
 
 <section class="machine" aria-label="Play AttoChess">
   <div class="wrap" id="machine">
-    <h2 class="machine__title">Play AttoChess</h2>
+    <h2><span class="idx">02</span>Play AttoChess</h2>
 
     <div class="machine__grid">
       <div class="machine__play">
@@ -506,7 +610,7 @@ footer{ padding:2.75rem 0 3.5rem; }
 
 <section id="prior-work">
   <div class="wrap prose">
-    <h2>Prior work</h2>
+    <h2><span class="idx">03</span>Prior work</h2>
     <p>This project stands on the work that came before it, and honoring that lineage is part of the point.</p>
 
     <h3>LeanChess, Dmitry Shechtman, 2019</h3>
@@ -522,7 +626,7 @@ footer{ padding:2.75rem 0 3.5rem; }
 
 <section id="verify">
   <div class="wrap prose">
-    <h2>Verifying the size</h2>
+    <h2><span class="idx">04</span>Verifying the size</h2>
     <p>The record claim is only worth anything if you can reproduce it. Assemble the source and measure the output:</p>
 <pre><code>tasm AttoChess
 tlink /t AttoChess        <span class="c">; /t produces a .COM, not an .EXE</span>
@@ -533,7 +637,7 @@ ls -l AttoChess.com       <span class="c">; 278 bytes</span></code></pre>
 
 <section id="optimizations">
   <div class="wrap">
-    <h2>Optimizations</h2>
+    <h2><span class="idx">05</span>Optimizations</h2>
     <div class="prose">
       <p>AttoChess keeps the original's core search verbatim. All ten bytes come from rethinking the two things around the search, how the board is drawn and how the move is decoded, plus one change inside the search loop that frees a register.</p>
     </div>
@@ -622,7 +726,7 @@ ls -l AttoChess.com       <span class="c">; 278 bytes</span></code></pre>
 
 <section id="build">
   <div class="wrap prose">
-    <h2>Building and running</h2>
+    <h2><span class="idx">06</span>Building and running</h2>
     <p>AttoChess is written in MASM/TASM syntax targeting the 80186.</p>
 
     <h3>Assemble with TASM (Turbo Assembler)</h3>
@@ -645,7 +749,7 @@ AttoChess.com</code></pre>
 
 <section id="scope">
   <div class="wrap prose">
-    <h2>Scope and limitations</h2>
+    <h2><span class="idx">07</span>Scope and limitations</h2>
     <p>AttoChess inherits its rule set from the program it was golfed from, and being honest about it is part of the point:</p>
     <ul>
       <li>It plays standard piece movement and captures with a real recursive search.</li>
@@ -658,7 +762,7 @@ AttoChess.com</code></pre>
 
 <footer>
   <div class="wrap prose">
-    <h2>License and credits</h2>
+    <h2><span class="idx">08</span>License and credits</h2>
     <p>MIT License. Copyright &copy; 2026 Nicholas Tanner (AttoChess). Copyright &copy; 2019 Dmitry Shechtman (LeanChess).</p>
     <p>AttoChess is a derivative work and retains Dmitry Shechtman's original copyright notice and MIT license in full at the top of <code>AttoChess.asm</code>, as the license requires. Please keep it there.</p>
 
