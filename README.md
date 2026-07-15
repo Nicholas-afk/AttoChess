@@ -29,7 +29,7 @@ AttoChess             278   2026   Nicholas Tanner       x86 DOS (.COM)
 This project stands on the work that came before it, and honoring that lineage is
 part of the point.
 
-- **[LeanChess](https://github.com/leanchess/leanchess.github.io)** — Dmitry
+- **[LeanChess]([https://github.com/leanchess/leanchess.github.io](https://leanchess.github.io/))** — Dmitry
   Shechtman, 2019. The real breakthrough: it took the record from a 487-byte boot
   sector down to a 288-byte DOS `.COM`, with an elegant, genuinely readable design
   — a padded 0x88 board, a piece encoding that doubles as its own
