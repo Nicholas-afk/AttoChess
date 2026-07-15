@@ -63,7 +63,7 @@ body{
 .wrap{ width:100%; max-width:var(--wide); margin:0 auto; padding:0 var(--pad); }
 .prose{ max-width:var(--measure); }
 
-section{ padding:clamp(3rem, 6vw, 4.5rem) 0; border-top:1px solid var(--rule); }
+section{ padding:clamp(3rem, 6vw, 4.5rem) 0; }
 
 h1,h2,h3{ color:var(--heading); font-weight:600; letter-spacing:-0.005em; }
 
@@ -152,9 +152,37 @@ pre .k{ color:var(--amber-hi); }
 }
 .byline b{ color:var(--amber); font-weight:500; }
 
-/* Keep the machine (board + console + status) as one unit, but let it stretch a bit
-   wider than the reading measure so the section doesn't look skinny beside the prose. */
-.machine #machine{ max-width:42rem; }
+/* The play section: a centered heading, then the board alongside a short "how it works"
+   guide. Wider than the reading measure so it fills the page without looking skinny. */
+.machine #machine{ max-width:52rem; }
+.machine__title{ text-align:center; }
+.machine__title::before{ left:50%; transform:translateX(-50%); }
+
+.machine__grid{
+  display:grid;
+  grid-template-columns:minmax(0, 32rem) minmax(0, 15rem);
+  gap:clamp(1.5rem, 4vw, 2.75rem);
+  align-items:center;
+  justify-content:center;
+}
+.machine__play{ min-width:0; }
+
+.machine__guide{ align-self:center; }
+.machine__guide h3{ margin-top:0; }
+.machine__guide p{
+  font-size:.9375rem;
+  line-height:1.65;
+  color:var(--muted);
+}
+.machine__guide p:last-child{ margin-bottom:0; }
+.machine__guide strong{ color:var(--text); }
+.machine__guide em{ color:var(--amber-hi); font-style:normal; }
+
+/* On narrow screens the guide drops below the board and everything stays centered. */
+@media (max-width:720px){
+  .machine__grid{ grid-template-columns:minmax(0, 32rem); }
+  .machine__guide{ max-width:32rem; margin:0 auto; }
+}
 
 .board-panel{
   border:1px solid var(--rule);
@@ -369,7 +397,7 @@ pre .k{ color:var(--amber-hi); }
   margin-bottom:.35rem;
 }
 
-footer{ border-top:1px solid var(--rule); padding:2.75rem 0 3.5rem; }
+footer{ padding:2.75rem 0 3.5rem; }
 .credits{ display:grid; gap:.35rem; font-size:.9375rem; color:var(--muted); max-width:var(--measure); }
 .credits strong{ color:var(--text); }
 .colophon{
@@ -450,31 +478,43 @@ footer{ border-top:1px solid var(--rule); padding:2.75rem 0 3.5rem; }
 
 <section class="machine" aria-label="Play AttoChess">
   <div class="wrap" id="machine">
-    <h2>Play AttoChess</h2>
-    <div class="board-panel">
-      <div class="board-wrap">
-        <div class="ranks" id="ranks"></div>
-        <div class="stage" id="stage">
-          <div class="grid" id="grid"></div>
-          <div class="overlay" id="overlay">
-            <button class="btn" id="start">Start game</button>
-            <p>Loads the 278-byte program in an emulated DOS machine. You play White.</p>
+    <h2 class="machine__title">Play AttoChess</h2>
+
+    <div class="machine__grid">
+      <div class="machine__play">
+        <div class="board-panel">
+          <div class="board-wrap">
+            <div class="ranks" id="ranks"></div>
+            <div class="stage" id="stage">
+              <div class="grid" id="grid"></div>
+              <div class="overlay" id="overlay">
+                <button class="btn" id="start">Start game</button>
+                <p>Loads the 278-byte program in an emulated DOS machine. You play White.</p>
+              </div>
+            </div>
+            <div class="files" id="files"></div>
           </div>
         </div>
-        <div class="files" id="files"></div>
+
+        <div class="console">
+          <span class="console__prompt">&gt;</span>
+          <label class="visually-hidden" for="move">Your move</label>
+          <input id="move" type="text" maxlength="4" placeholder="e2e4" autocomplete="off" spellcheck="false" disabled>
+          <button class="btn" id="send" disabled>Play move</button>
+        </div>
+
+        <div class="status">
+          <span class="status__state" id="state">Not started</span>
+          <span>K N B P Q R White &nbsp;·&nbsp; k n b p q r Black</span>
+        </div>
       </div>
-    </div>
 
-    <div class="console">
-      <span class="console__prompt">&gt;</span>
-      <label class="visually-hidden" for="move">Your move</label>
-      <input id="move" type="text" maxlength="4" placeholder="e2e4" autocomplete="off" spellcheck="false" disabled>
-      <button class="btn" id="send" disabled>Play move</button>
-    </div>
-
-    <div class="status">
-      <span class="status__state" id="state">Not started</span>
-      <span>K N B P Q R White &nbsp;·&nbsp; k n b p q r Black</span>
+      <aside class="machine__guide">
+        <h3>How it works</h3>
+        <p>Press <strong>Start game</strong> and the real 278-byte program boots inside an emulated DOS machine, right here in the page. You play White; it plays Black.</p>
+        <p>Type your move as four characters — the square you're moving <em>from</em> and the square <em>to</em>, like <code>e2e4</code> — and press Enter or <strong>Play move</strong>. Your piece moves at once; the engine searches four plies deep and answers a moment later, with both squares of the last move highlighted.</p>
+        <p>Moves are trusted and given in plain coordinates: there's no click-to-move, no castling, en passant, or promotion. When the engine runs out of replies, the game is over.</p>
+      </aside>
     </div>
   </div>
 </section>
