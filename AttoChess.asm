@@ -146,17 +146,16 @@ next:
     mov bp, offset board_db + 28               ;Start from top left corner
 
 src_loop:
-    mov al, [bp]                               ;Read source square
-    test al, dl                                ;Opponent's piece or border?
+    mov bl, [bp]                               ;Read source square
+    test bl, dl                                ;Opponent's piece or border?
     jnz src_cont                               ;Yes, proceed to next source square
 
-    and ax, 07h                                ;Isolate piece type
+    and bx, 07h                                ;Isolate piece type
     jz src_cont                                ;No piece, proceed to next source square
 
-    mov bl, al                                 ;Save piece type
-    mov si, offset moves_knight - 2            ;Set base metadata address
-    add si, ax                                 ;Calculate absolute metadata address
+    lea si, [bx + offset moves_knight - 2]     ;Calculate absolute metadata address
     lodsb                                      ;Read relative vectors address
+    cbw                                        ;Zero AH
     add si, ax                                 ;Calculate absolute vectors address
 
 vec_loop:
