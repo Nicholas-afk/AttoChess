@@ -1106,7 +1106,7 @@ AttoChess.com</code></pre>
     stopPolling();
     disableInput();
     moveInput.placeholder = "game over";
-    setState("Game over");
+    setState("Engine resigned");
     showEndOverlay();
   }
 
@@ -1117,11 +1117,11 @@ AttoChess.com</code></pre>
 
     var title = document.createElement("p");
     var strong = document.createElement("strong");
-    strong.textContent = "Game over";
+    strong.textContent = "Engine resigned";
     title.appendChild(strong);
 
     var body = document.createElement("p");
-    body.textContent = "The engine has no reply: this is checkmate, stalemate, or a draw. AttoChess halts on any of them without distinguishing which.";
+    body.textContent = "The engine found no move it judged worth playing, so it resigns rather than play on. This happens on checkmate, stalemate, or a draw — and also when every reply loses material by force. AttoChess does not distinguish between them.";
 
     var again = document.createElement("button");
     again.className = "btn";
