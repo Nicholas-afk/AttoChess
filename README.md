@@ -323,5 +323,4 @@ requires. Please keep it there.
 - **David Horne** — 1K ZX Chess (1982), the 672-byte original that started the
   chase.
 - **[Peter Ferrie](https://github.com/peterferrie)** — the BX/`lea` rewrite of the
-  move-table addressing in the source loop (§6), worth 2 bytes, and for pointing
-  out that Atomchess belonged in the lineage above.
+  move-table addressing in the source loop (§6), worth 2 bytes.
