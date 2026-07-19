@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0D0B08">
-<title>AttoChess: a 278-byte chess program for 16-bit x86 DOS</title>
-<meta name="description" content="AttoChess is a complete, playable chess program for 16-bit x86 DOS in 278 bytes. Play it in the browser, read the source, and reproduce the byte count.">
+<title>AttoChess: a 276-byte chess program for 16-bit x86 DOS</title>
+<meta name="description" content="AttoChess is a complete, playable chess program for 16-bit x86 DOS in 276 bytes. Play it in the browser, read the source, and reproduce the byte count.">
 
 <script src="coi-serviceworker.js"></script>
 
@@ -528,9 +528,9 @@ footer{ padding:clamp(3rem,6vw,4rem) 0 3.5rem; }
 
 <header class="masthead">
   <div class="wrap">
-    <p class="masthead__tag">Smallest working chess engine &middot; <b>record: 278 bytes</b></p>
+    <p class="masthead__tag">Smallest working chess engine &middot; <b>record: 276 bytes</b></p>
     <h1 class="title">AttoChess</h1>
-    <p class="summary">A complete, playable chess program for 16-bit x86 DOS in 278 bytes. It draws the board, reads a move from the keyboard, searches four plies deep, and replies. That is the entire file.</p>
+    <p class="summary">A complete, playable chess program for 16-bit x86 DOS in 276 bytes. It draws the board, reads a move from the keyboard, searches four plies deep, and replies. That is the entire file.</p>
 
     <p class="masthead__cta">
       <a class="ghlink" href="https://github.com/Nicholas-afk/AttoChess">
@@ -541,7 +541,7 @@ footer{ padding:clamp(3rem,6vw,4rem) 0 3.5rem; }
     </p>
 
     <dl class="specs">
-      <div class="spec"><dt>Size</dt><dd>278 bytes</dd></div>
+      <div class="spec"><dt>Size</dt><dd>276 bytes</dd></div>
       <div class="spec"><dt>Target</dt><dd>x86 DOS .COM</dd></div>
       <div class="spec"><dt>Search</dt><dd>4-ply</dd></div>
       <div class="spec"><dt>License</dt><dd class="plain">MIT</dd></div>
@@ -557,7 +557,7 @@ footer{ padding:clamp(3rem,6vw,4rem) 0 3.5rem; }
   <div class="wrap">
     <h2><span class="idx">01</span>Lineage</h2>
     <div class="prose">
-      <p>AttoChess is a size-optimized descendant of <strong>LeanChess</strong>. It plays the same game, in the same environment, using the same 0x88-style board and recursive minimax search, yet assembles to 278 bytes: ten bytes smaller than the 288-byte program that previously held the record for the smallest working chess engine.</p>
+      <p>AttoChess is a size-optimized descendant of <strong>LeanChess</strong>. It plays the same game, in the same environment, using the same 0x88-style board and recursive minimax search, yet assembles to 276 bytes: twelve bytes smaller than the 288-byte program that previously held the record for the smallest working chess engine.</p>
     </div>
 
     <div class="lineage">
@@ -579,6 +579,14 @@ footer{ padding:clamp(3rem,6vw,4rem) 0 3.5rem; }
 
       <div class="entry">
         <div class="entry__head">
+          <span class="entry__name">Toledo Atomchess <span class="entry__bytes">352 bytes</span></span>
+          <span class="entry__meta">2015 &middot; &Oacute;scar Toledo G. &middot; x86 DOS (.COM)</span>
+        </div>
+        <div class="bar"><span style="width:52.4%"></span></div>
+      </div>
+
+      <div class="entry">
+        <div class="entry__head">
           <span class="entry__name">LeanChess <span class="entry__bytes">288 bytes</span></span>
           <span class="entry__meta">2019 &middot; Dmitry Shechtman &middot; x86 DOS (.COM)</span>
         </div>
@@ -587,10 +595,10 @@ footer{ padding:clamp(3rem,6vw,4rem) 0 3.5rem; }
 
       <div class="entry is-record">
         <div class="entry__head">
-          <span class="entry__name">AttoChess <span class="entry__bytes">278 bytes</span></span>
+          <span class="entry__name">AttoChess <span class="entry__bytes">276 bytes</span></span>
           <span class="entry__meta">2026 &middot; Nicholas Tanner &middot; x86 DOS (.COM)</span>
         </div>
-        <div class="bar"><span style="width:41.4%"></span></div>
+        <div class="bar"><span style="width:41.1%"></span></div>
       </div>
     </div>
 
@@ -598,7 +606,7 @@ footer{ padding:clamp(3rem,6vw,4rem) 0 3.5rem; }
 
     <div class="note">
       <span class="note__label">Note</span>
-      <p>AttoChess is not a byte-count stunt that only sets up a board. It boots, draws the position, reads your move from the keyboard, searches with real 4-ply recursion, replies with a legal move, and loops. The 278-byte figure is the assembled size of that whole program, verified byte-for-byte on the produced <code>.COM</code>.</p>
+      <p>AttoChess is not a byte-count stunt that only sets up a board. It boots, draws the position, reads your move from the keyboard, searches with real 4-ply recursion, replies with a legal move, and loops. The 276-byte figure is the assembled size of that whole program, verified byte-for-byte on the produced <code>.COM</code>.</p>
     </div>
   </div>
 </section>
@@ -616,7 +624,7 @@ footer{ padding:clamp(3rem,6vw,4rem) 0 3.5rem; }
               <div class="grid" id="grid"></div>
               <div class="overlay" id="overlay">
                 <button class="btn" id="start" type="button">Start game</button>
-                <p>Loads the 278-byte program in an emulated DOS machine. You play White.</p>
+                <p>Loads the 276-byte program in an emulated DOS machine. You play White.</p>
               </div>
             </div>
             <div class="files" id="files"></div>
@@ -638,7 +646,7 @@ footer{ padding:clamp(3rem,6vw,4rem) 0 3.5rem; }
 
       <aside class="machine__guide">
         <h3>How it works</h3>
-        <p>Press <strong>Start game</strong> and the real 278-byte program boots inside an emulated DOS machine, right here in the page. You play White; it plays Black.</p>
+        <p>Press <strong>Start game</strong> and the real 276-byte program boots inside an emulated DOS machine, right here in the page. You play White; it plays Black.</p>
         <p>Type your move as four characters, the square you are moving <em>from</em> and the square <em>to</em>, like <code>e2e4</code>, then press Enter or <strong>Play move</strong>. Your piece moves at once; the engine searches four plies deep and answers a moment later, with both squares of the last move highlighted.</p>
         <p>Moves are trusted and given in plain coordinates: no click-to-move, no castling, en passant, or promotion. When the engine runs out of replies, the game is over.</p>
       </aside>
@@ -654,6 +662,9 @@ footer{ padding:clamp(3rem,6vw,4rem) 0 3.5rem; }
     <h3>LeanChess, Dmitry Shechtman, 2019</h3>
     <p>The real breakthrough: it took the record from a 487-byte boot sector down to a 288-byte DOS <code>.COM</code>, with an elegant, genuinely readable design. A padded 0x88 board, a piece encoding that doubles as its own move-generation index, and a single recursive routine that both makes a move and finds the best reply. Every clever idea in AttoChess is one of these ideas taken a step further, and AttoChess is a <strong>derivative work</strong> that retains Shechtman's copyright and MIT license in full. If you find this interesting, <a href="https://github.com/leanchess/leanchess.github.io">read his source first</a>.</p>
 
+    <h3>Toledo Atomchess, &Oacute;scar Toledo G., 2015</h3>
+    <p>Held the DOS <code>.COM</code> record between BootChess and LeanChess, refined over several years down to 352 bytes (356 as a bootable sector, 326 in its stripped &ldquo;HACK&rdquo; build). Like everything in this size class, AttoChess included, it leaves out castling, en passant, and promotion. It is the step the 487 &rarr; 288 jump usually skips over, and it deserves the credit. <a href="https://github.com/nanochess/Toledo-Atomchess">Source on GitHub</a>.</p>
+
     <h3>BootChess, Olivier Poudade, 2015</h3>
     <p>Fit a chess game into a 512-byte boot sector (487 bytes of code) and reset public expectations of how small chess could go. <a href="http://olivier.poudade.free.fr/">Poudade's page</a> still hosts it.</p>
 
@@ -668,7 +679,7 @@ footer{ padding:clamp(3rem,6vw,4rem) 0 3.5rem; }
     <p>The record claim is only worth anything if you can reproduce it. Assemble the source and measure the output:</p>
 <pre><code>tasm AttoChess
 tlink /t AttoChess        <span class="c">; /t produces a .COM, not an .EXE</span>
-ls -l AttoChess.com       <span class="c">; 278 bytes</span></code></pre>
+ls -l AttoChess.com       <span class="c">; 276 bytes</span></code></pre>
     <p>There is nothing else in the image: no data-section padding, no separate render buffer, no reserved board array baked into the file. Every byte in <code>AttoChess.com</code> is code or table data the program actually uses.</p>
   </div>
 </section>
@@ -770,7 +781,7 @@ ls -l AttoChess.com       <span class="c">; 278 bytes</span></code></pre>
     <h3>Assemble with TASM (Turbo Assembler)</h3>
 <pre><code>tasm AttoChess
 tlink /t AttoChess        <span class="c">; /t produces a .COM, not an .EXE</span></code></pre>
-    <p>This yields <code>AttoChess.com</code>, a 278-byte DOS executable.</p>
+    <p>This yields <code>AttoChess.com</code>, a 276-byte DOS executable.</p>
 
     <h3>Run under DOSBox</h3>
 <pre><code>dosbox</code></pre>
@@ -806,11 +817,12 @@ AttoChess.com</code></pre>
 
     <div class="credits">
       <p><strong>Dmitry Shechtman</strong>, <a href="https://github.com/leanchess/leanchess.github.io">LeanChess</a>, the 288-byte program this is built on.</p>
+      <p><strong>&Oacute;scar Toledo G.</strong>, <a href="https://github.com/nanochess/Toledo-Atomchess">Toledo Atomchess</a>, which held the DOS <code>.COM</code> record between BootChess and LeanChess.</p>
       <p><strong>Olivier Poudade</strong>, <a href="http://olivier.poudade.free.fr/">BootChess</a>, the 487-byte boot-sector ancestor.</p>
       <p><strong>David Horne</strong>, 1K ZX Chess (1982), the 672-byte original.</p>
     </div>
 
-    <p class="colophon">278 bytes &middot; 80186 &middot; MIT &middot; emulation by js-dos v8</p>
+    <p class="colophon">276 bytes &middot; 80186 &middot; MIT &middot; emulation by js-dos v8</p>
   </div>
 </footer>
 
