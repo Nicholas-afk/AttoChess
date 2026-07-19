@@ -1,15 +1,15 @@
 ; ============================================================================
-;  AttoChess -- a complete chess program for 16-bit x86 DOS in 276 bytes.
+;  AttoChess: a complete chess program for 16-bit x86 DOS in 276 bytes.
 ;
 ;  Copyright (c) 2026 Nicholas Tanner
 ;
-;  AttoChess renders the board by streaming it straight to the console with
-;  INT 29h, folds the input decoder's ASCII constants into a single wrapping
-;  base address, and keeps the recursive search's depth counter live in CX.
+;  The display loop streams board bytes straight to the console with INT 29h.
+;  The input decoder folds its ASCII constants into one wrapping base address,
+;  and the search keeps its depth counter live in CX instead of reloading it
+;  from the stack on every recursive call.
 ;
-;  This is a derivative work. It builds on -- and gratefully retains the
-;  license and attribution of -- Dmitry Shechtman's original, reproduced in
-;  full immediately below. Do not remove his notice.
+;  This is a derivative work of Dmitry Shechtman's LeanChess.  His copyright
+;  and license are reproduced in full immediately below.  Do not remove them.
 ; ============================================================================
 ;
 ; Copyright (c) 2019 Dmitry Shechtman
@@ -32,14 +32,15 @@
 ; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ; SOFTWARE.
 
-; The 12-byte board rows carry CR,LF,CR,LF (0Dh,0Ah,0Dh,0Ah) in their first four
-; columns instead of the original 08h border filler.  Every CR/LF byte still has
-; bit 3 set, so all border/color mask tests fire exactly as before, yet the raw
-; board doubles as its own printable frame: the display loop streams board bytes
-; straight to the console with INT 29h (borders become newlines, empties become
-; NULs, pieces get the +1 / AND 27h / ADD 4Bh ASCII transform).  This removes the
-; separate render buffer, the '$'-terminated INT 21h/09h write, the INT 10h mode
-; set, and the trailing board reservation from the image.
+; Each 12-byte board row carries CR,LF,CR,LF (0Dh,0Ah,0Dh,0Ah) in its first four
+; columns, where LeanChess used 08h filler.  CR and LF both have bit 3 set, so
+; they still read as border to every border/color mask test, and the raw board
+; doubles as its own printable frame.  The display loop can therefore stream
+; board bytes straight to the console with INT 29h: borders become newlines,
+; empty squares become NULs, and pieces get the +1 / AND 27h / ADD 4Bh ASCII
+; transform.  Nothing else is needed to draw a position, so there is no render
+; buffer, no '$'-terminated INT 21h/09h write, no INT 10h mode set, and no board
+; array reserved in the image.
 
 .model tiny
 .186
@@ -49,7 +50,7 @@ code segment
 
 start:
     cld                                        ;DF is not guaranteed clear at entry
-    mov cx, 13                                 ;Row count (entry CX is not guaranteed);
+    mov cx, 13                                 ;Row count (entry CX is not guaranteed),
                                                ;row 12 borders knight jumps from h1
     mov si, offset init_db                     ;Set row metadata address
     mov di, offset board_db                    ;Set board address
