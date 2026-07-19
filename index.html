@@ -54,7 +54,7 @@ body{
   line-height:1.72;
   -webkit-font-smoothing:antialiased;
   text-rendering:optimizeLegibility;
-  /* faint grid texture — makes it feel drafted, not generated */
+  /* faint vertical grid, like ruled drafting paper */
   background-image:
     linear-gradient(var(--ink-2) 0 0),
     repeating-linear-gradient(90deg, transparent 0 3rem, rgba(232,163,58,.018) 3rem 3.0625rem);
@@ -68,7 +68,7 @@ body{
 .wrap{ width:100%; max-width:var(--wide); margin:0 auto; padding:0 var(--pad); }
 .prose{ max-width:var(--measure); }
 
-/* every section is a bordered plate, stacked with hairline rules between them */
+/* sections stack as bordered plates with hairline rules between them */
 section{
   padding:clamp(3.25rem, 7vw, 5.5rem) 0;
   border-top:1px solid var(--rule);
@@ -77,7 +77,7 @@ section + section{ border-top:1px dashed var(--rule); }
 
 h1,h2,h3{ color:var(--heading); font-weight:600; letter-spacing:-0.005em; }
 
-/* section headings read like a spec sheet: [ NN ] LABEL ─────── */
+/* headings run as a spec sheet line: [ NN ] LABEL ─────── */
 h2{
   position:relative;
   display:flex; align-items:center; gap:.9rem;
@@ -218,7 +218,7 @@ pre .k{ color:var(--amber-hi); }
   line-height:1.65;
 }
 
-/* the byline becomes a hard spec strip: label / value cells */
+/* byline as a hard spec strip of label / value cells */
 .specs{
   display:grid;
   grid-template-columns:repeat(auto-fit, minmax(8.5rem, 1fr));
@@ -436,7 +436,7 @@ pre .k{ color:var(--amber-hi); }
 .entry__bytes{ color:var(--muted); font-variant-numeric:tabular-nums; }
 .entry__meta{ color:var(--muted); font-size:.75rem; text-align:right; }
 
-/* bars: hard-edged, blocky, with a hatched empty track */
+/* blocky bars on a hatched empty track */
 .bar{
   height:12px;
   border:1px solid var(--rule);
@@ -474,7 +474,7 @@ pre .k{ color:var(--amber-hi); }
   margin-bottom:.55rem;
 }
 
-/* optimizations: each is a numbered entry with a hanging tab */
+/* each optimization is a numbered entry with a hanging tab */
 .opt{
   padding-top:2.75rem;
   margin-top:2.75rem;
@@ -530,7 +530,7 @@ footer{ padding:clamp(3rem,6vw,4rem) 0 3.5rem; }
   <div class="wrap">
     <p class="masthead__tag">Smallest working chess engine &middot; <b>record: 276 bytes</b></p>
     <h1 class="title">AttoChess</h1>
-    <p class="summary">A complete, playable chess program for 16-bit x86 DOS in 276 bytes. It draws the board, reads a move from the keyboard, searches four plies deep, and replies. That is the entire file.</p>
+    <p class="summary">A complete, playable chess program for 16-bit x86 DOS in 276 bytes. It draws the board, reads a move from the keyboard, searches four plies deep, and replies, and that is the whole file.</p>
 
     <p class="masthead__cta">
       <a class="ghlink" href="https://github.com/Nicholas-afk/AttoChess">
@@ -557,7 +557,7 @@ footer{ padding:clamp(3rem,6vw,4rem) 0 3.5rem; }
   <div class="wrap">
     <h2><span class="idx">01</span>Lineage</h2>
     <div class="prose">
-      <p>AttoChess is a size-optimized descendant of <strong>LeanChess</strong>. It plays the same game, in the same environment, using the same 0x88-style board and recursive minimax search, yet assembles to 276 bytes: twelve bytes smaller than the 288-byte program that previously held the record for the smallest working chess engine.</p>
+      <p>AttoChess is a size-optimized descendant of LeanChess. Same game, same environment, same 0x88-style board and recursive minimax search, but it assembles to 276 bytes. That is twelve bytes under the 288-byte program that previously held the record for the smallest working chess engine.</p>
     </div>
 
     <div class="lineage">
@@ -606,7 +606,7 @@ footer{ padding:clamp(3rem,6vw,4rem) 0 3.5rem; }
 
     <div class="note">
       <span class="note__label">Note</span>
-      <p>AttoChess is not a byte-count stunt that only sets up a board. It boots, draws the position, reads your move from the keyboard, searches with real 4-ply recursion, replies with a legal move, and loops. The 276-byte figure is the assembled size of that whole program, verified byte-for-byte on the produced <code>.COM</code>.</p>
+      <p>AttoChess is not a byte-count stunt that only sets up a board. It boots, draws the position, reads your move from the keyboard, searches four plies of real recursion, replies with a legal move, and loops. The 276 bytes are the assembled size of all of that, measured on the produced <code>.COM</code>.</p>
     </div>
   </div>
 </section>
@@ -624,7 +624,7 @@ footer{ padding:clamp(3rem,6vw,4rem) 0 3.5rem; }
               <div class="grid" id="grid"></div>
               <div class="overlay" id="overlay">
                 <button class="btn" id="start" type="button">Start game</button>
-                <p>Loads the 276-byte program in an emulated DOS machine. You play White.</p>
+                <p>Loads the 276-byte program into an emulated DOS machine. You play White.</p>
               </div>
             </div>
             <div class="files" id="files"></div>
@@ -646,9 +646,9 @@ footer{ padding:clamp(3rem,6vw,4rem) 0 3.5rem; }
 
       <aside class="machine__guide">
         <h3>How it works</h3>
-        <p>Press <strong>Start game</strong> and the real 276-byte program boots inside an emulated DOS machine, right here in the page. You play White; it plays Black.</p>
-        <p>Type your move as four characters, the square you are moving <em>from</em> and the square <em>to</em>, like <code>e2e4</code>, then press Enter or <strong>Play move</strong>. Your piece moves at once; the engine searches four plies deep and answers a moment later, with both squares of the last move highlighted.</p>
-        <p>Moves are trusted and given in plain coordinates: no click-to-move, no castling, en passant, or promotion. When the engine runs out of replies, the game is over.</p>
+        <p>Press <strong>Start game</strong> and the real 276-byte program boots in an emulated DOS machine, right here in the page. You play White, it plays Black.</p>
+        <p>Type your move as four characters, the square you are moving <em>from</em> and the square <em>to</em>, like <code>e2e4</code>, then press Enter or <strong>Play move</strong>. Your piece moves at once. The engine searches four plies deep and answers a moment later, with both squares of its move highlighted.</p>
+        <p>Everything is plain coordinates, so there is no click-to-move. Your input is trusted rather than checked, and castling, en passant, and promotion are not implemented. When the engine runs out of replies, the game is over.</p>
       </aside>
     </div>
   </div>
@@ -657,30 +657,30 @@ footer{ padding:clamp(3rem,6vw,4rem) 0 3.5rem; }
 <section id="prior-work">
   <div class="wrap prose">
     <h2><span class="idx">03</span>Prior work</h2>
-    <p>This project stands on the work that came before it, and honoring that lineage is part of the point.</p>
+    <p>Almost nothing here is a new idea. It is mostly other people's ideas pushed one step further, so the chain is worth spelling out.</p>
 
     <h3>LeanChess, Dmitry Shechtman, 2019</h3>
-    <p>The real breakthrough: it took the record from a 487-byte boot sector down to a 288-byte DOS <code>.COM</code>, with an elegant, genuinely readable design. A padded 0x88 board, a piece encoding that doubles as its own move-generation index, and a single recursive routine that both makes a move and finds the best reply. Every clever idea in AttoChess is one of these ideas taken a step further, and AttoChess is a <strong>derivative work</strong> that retains Shechtman's copyright and MIT license in full. If you find this interesting, <a href="https://github.com/leanchess/leanchess.github.io">read his source first</a>.</p>
+    <p>This is the one that mattered. It took the record from a 487-byte boot sector down to a 288-byte DOS <code>.COM</code>, and did it with a design that is genuinely readable: a padded 0x88 board, a piece encoding that doubles as its own move-generation index, and one recursive routine that both makes a move and finds the best reply. AttoChess is a derivative work and keeps Shechtman's copyright and MIT license intact. If any of this interests you, <a href="https://github.com/leanchess/leanchess.github.io">read his source before mine</a>.</p>
 
     <h3>Toledo Atomchess, &Oacute;scar Toledo G., 2015</h3>
-    <p>Held the DOS <code>.COM</code> record between BootChess and LeanChess, refined over several years down to 352 bytes (356 as a bootable sector, 326 in its stripped &ldquo;HACK&rdquo; build). Like everything in this size class, AttoChess included, it leaves out castling, en passant, and promotion. It is the step the 487 &rarr; 288 jump usually skips over, and it deserves the credit. <a href="https://github.com/nanochess/Toledo-Atomchess">Source on GitHub</a>.</p>
+    <p>Held the DOS <code>.COM</code> record between BootChess and LeanChess, and got refined over several years down to 352 bytes (356 as a bootable sector, 326 in its stripped &ldquo;HACK&rdquo; build). Like everything at this size, AttoChess included, it leaves out castling, en passant, and promotion. Write-ups of this record tend to jump straight from 487 to 288 and skip it. <a href="https://github.com/nanochess/Toledo-Atomchess">Source on GitHub</a>.</p>
 
     <h3>BootChess, Olivier Poudade, 2015</h3>
-    <p>Fit a chess game into a 512-byte boot sector (487 bytes of code) and reset public expectations of how small chess could go. <a href="http://olivier.poudade.free.fr/">Poudade's page</a> still hosts it.</p>
+    <p>Fit a chess game into a 512-byte boot sector, 487 bytes of it code. This is roughly where the modern version of the contest starts. <a href="http://olivier.poudade.free.fr/">Poudade's page</a> still hosts it.</p>
 
     <h3>1K ZX Chess, David Horne, 1982</h3>
-    <p>Squeezed a playable game into 672 bytes on a Sinclair ZX81 and stood as the benchmark for over thirty years.</p>
+    <p>Squeezed a playable game into 672 bytes on a Sinclair ZX81, and it held for over thirty years.</p>
   </div>
 </section>
 
 <section id="verify">
   <div class="wrap prose">
     <h2><span class="idx">04</span>Verifying the size</h2>
-    <p>The record claim is only worth anything if you can reproduce it. Assemble the source and measure the output:</p>
+    <p>A size record you cannot reproduce is not worth much. Assemble the source and measure the output yourself:</p>
 <pre><code>tasm AttoChess
 tlink /t AttoChess        <span class="c">; /t produces a .COM, not an .EXE</span>
 ls -l AttoChess.com       <span class="c">; 276 bytes</span></code></pre>
-    <p>There is nothing else in the image: no data-section padding, no separate render buffer, no reserved board array baked into the file. Every byte in <code>AttoChess.com</code> is code or table data the program actually uses.</p>
+    <p>Nothing else is in that image. There is no data-section padding, no separate render buffer, and no board array reserved in the file. Every byte of <code>AttoChess.com</code> is code or table data the program actually uses.</p>
   </div>
 </section>
 
@@ -688,15 +688,14 @@ ls -l AttoChess.com       <span class="c">; 276 bytes</span></code></pre>
   <div class="wrap">
     <h2><span class="idx">05</span>Optimizations</h2>
     <div class="prose">
-      <p>AttoChess keeps the original's core search verbatim. All ten bytes come from rethinking the two things around the search, how the board is drawn and how the move is decoded, plus one change inside the search loop that frees a register.</p>
+      <p>The core search is unchanged from LeanChess. All ten bytes come out of the two things around it, how the board is drawn and how your move is decoded, plus one change inside the search loop that frees a register.</p>
     </div>
 
     <article class="opt prose">
       <span class="opt__num">01 &middot; Display</span>
-      <h3>The board draws itself: no render buffer, no int 21h/09h</h3>
-      <p>This accounts for the largest saving.</p>
-      <p>The original renders the position into a separate buffer: it walks the board, transforms each square into a printable character, stores it, appends a <code>$</code> terminator, and prints the whole string with DOS function <code>09h</code> (<code>int 21h</code>). That path costs a buffer pointer setup, the copy loop's store, the terminator write, and, because the buffer lives after the board, a reserved board array in the image.</p>
-      <p>AttoChess deletes all of it. The board's border columns are laid out as <code>CR, LF, CR, LF</code> (<code>0Dh, 0Ah, 0Dh, 0Ah</code>) instead of the previous <code>08h</code> filler. Both CR and LF still have bit 3 set, so every existing border/color mask test fires exactly as before, but now the raw board bytes are already a printable frame. The display loop streams each byte straight to the console with <code>int 29h</code> (DOS fast console output): borders become newlines, empty squares become NULs, and only real pieces take the ASCII transform.</p>
+      <h3>The board draws itself</h3>
+      <p>This one saves the most. The original renders the position into a separate buffer: it walks the board, transforms each square into a printable character, stores it, appends a <code>$</code> terminator, and prints the whole string with DOS function <code>09h</code> (<code>int 21h</code>). That path costs a buffer pointer setup, the copy loop's store, the terminator write, and, because the buffer lives after the board, a reserved board array in the image.</p>
+      <p>AttoChess drops all of it. The board's border columns are laid out as <code>CR, LF, CR, LF</code> (<code>0Dh, 0Ah, 0Dh, 0Ah</code>) rather than the <code>08h</code> filler LeanChess used. CR and LF both have bit 3 set, so every existing border/color mask test fires exactly as before, except now the raw board bytes are already a printable frame. The display loop streams each byte straight to the console with <code>int 29h</code> (DOS fast console output): borders become newlines, empty squares become NULs, and only real pieces take the ASCII transform.</p>
 <pre><code><span class="k">main_loop:</span>
     mov si, offset board_db + 24   <span class="c">; row 2 (black back rank), col 0</span>
     mov cl, 98                     <span class="c">; 8 rank rows + final CR,LF (CH=0)</span>
@@ -710,24 +709,24 @@ ls -l AttoChess.com       <span class="c">; 276 bytes</span></code></pre>
 <span class="k">disp_cont:</span>
     int 29h                        <span class="c">; fast console output of AL</span>
     loop disp_loop</code></pre>
-      <p>Removed in one move: the render buffer, its pointer setup, the <code>$</code> terminator, the <code>int 21h</code>/<code>09h</code> string print, and the reserved board array in the file image.</p>
+      <p>That takes out the render buffer, its pointer setup, the <code>$</code> terminator, the <code>int 21h</code>/<code>09h</code> string print, and the reserved board array in the file image.</p>
     </article>
 
     <article class="opt prose">
       <span class="opt__num">02 &middot; Startup</span>
-      <h3>No BIOS mode-set; deterministic startup instead</h3>
-      <p>The original opens with <code>int 10h</code> to force BIOS display mode 0. AttoChess drops it and instead makes its two genuine entry assumptions explicit, which is both smaller overall and correct regardless of how the program is launched:</p>
+      <h3>No BIOS mode-set</h3>
+      <p>The original opens with <code>int 10h</code> to force BIOS display mode 0. AttoChess drops it and makes its two genuine entry assumptions explicit instead, which is both smaller overall and correct regardless of how the program is launched:</p>
 <pre><code><span class="k">start:</span>
     cld                            <span class="c">; DF is not guaranteed clear at entry</span>
     mov cx, 13                     <span class="c">; row count (entry CX is not guaranteed)</span></code></pre>
-      <p>Streaming through <code>int 29h</code> needs no particular video mode, so the mode-set is not required.</p>
+      <p>Streaming through <code>int 29h</code> works in whatever video mode you happen to be in, so the mode-set is not needed.</p>
     </article>
 
     <article class="opt prose">
       <span class="opt__num">03 &middot; Input</span>
       <h3>The input decoder folds every constant into one base address</h3>
       <p>Reading a move means turning two typed characters (a file and a rank) into a board address. The original does this in stages: read the file char, add it, read the rank char, mask it down with <code>and al, 0Fh</code>, load <code>12</code> into <code>ah</code>, <code>mul</code> to get the row offset, and subtract.</p>
-      <p>AttoChess collapses the arithmetic by pre-folding the ASCII bias constants directly into the base address and letting 16-bit pointer math wrap around mod 64K. The normalization step and the separate multiply setup both disappear:</p>
+      <p>AttoChess collapses the arithmetic by pre-folding the ASCII bias constants into the base address and letting 16-bit pointer math wrap around mod 64K. The normalization step and the separate multiply setup both disappear:</p>
 <pre><code><span class="k">read_sub:</span>
     mov bp, di
     mov di, offset board_db + 123 + 0CE0h  <span class="c">; base pre-folds the ASCII offsets</span>
@@ -742,20 +741,20 @@ ls -l AttoChess.com       <span class="c">; 276 bytes</span></code></pre>
 
     <article class="opt prose">
       <span class="opt__num">04 &middot; Search</span>
-      <h3>The source loop frees CX, so depth is never reloaded</h3>
-      <p>Inside the recursive search, the original scans candidate source squares with a counted <code>loop</code> (<code>mov cl, 92</code> ... <code>loop src_loop</code>). That reuses CX as the loop counter, which clobbers the search depth living in CX, so on every recursive call it must re-read the depth back off the stack frame (<code>mov cx, [si + 32]</code>) before decrementing it.</p>
-      <p>AttoChess walks the source squares by comparing the pointer to the end of the board instead:</p>
+      <h3>The source loop leaves CX alone, so depth is never reloaded</h3>
+      <p>Inside the recursive search, the original scans candidate source squares with a counted <code>loop</code> (<code>mov cl, 92</code> ... <code>loop src_loop</code>). That reuses CX as the loop counter, which clobbers the search depth living there, so every recursive call has to re-read the depth back off the stack frame (<code>mov cx, [si + 32]</code>) before decrementing it.</p>
+      <p>AttoChess walks the source squares by comparing the pointer against the end of the board instead:</p>
 <pre><code><span class="k">src_cont:</span>
     inc bp
     cmp bp, offset board_db + 120  <span class="c">; past the last square?</span>
     jnz src_loop</code></pre>
-      <p>CX is never touched, so it stays as the live depth counter for the whole scan. The recursive call site then does <code>dec cx</code> directly, and the stack reload of depth is gone entirely.</p>
+      <p>CX is never touched, so it stays the live depth counter for the whole scan. The recursive call site then just does <code>dec cx</code>, and the stack reload of depth is gone entirely.</p>
     </article>
 
     <article class="opt prose">
       <span class="opt__num">05 &middot; Pawns</span>
       <h3>Pawn direction folded into the color bit</h3>
-      <p>The original's pawn logic isolates the vector's sign bit, shifts it into alignment with the color bit, XORs against the side-to-move, and branches on parity, several instructions of bit-shuffling. AttoChess folds the forward/backward test straight into color bit 5 with a single <code>xor al, dh</code>, and reuses vector parity (odd offset = diagonal) to tell captures from pushes:</p>
+      <p>The original's pawn logic isolates the vector's sign bit, shifts it into alignment with the color bit, XORs against the side-to-move, and branches on parity, which is several instructions of bit-shuffling. AttoChess folds the forward/backward test straight into color bit 5 with a single <code>xor al, dh</code>, and reuses vector parity (odd offset means diagonal) to tell captures from pushes:</p>
 <pre><code><span class="k">pawn:</span>
     push ax
     xor al, dh          <span class="c">; bit 5 := vector sign XOR side to move</span>
@@ -789,23 +788,23 @@ tlink /t AttoChess        <span class="c">; /t produces a .COM, not an .EXE</spa
 <pre><code>mount c: .
 c:
 AttoChess.com</code></pre>
-    <p>Any real or emulated 16-bit DOS environment (DOSBox, PCem, 86Box, or genuine hardware) works, since the program uses only standard DOS <code>int 21h</code>/<code>int 29h</code> calls.</p>
+    <p>Any real or emulated 16-bit DOS environment works (DOSBox, PCem, 86Box, or actual hardware), since the program uses only standard DOS <code>int 21h</code>/<code>int 29h</code> calls.</p>
 
     <h3>Playing</h3>
-    <p>You are White; the computer plays Black and answers automatically. Enter a move as four characters, the source file and rank followed by the destination file and rank, for example <code>e2e4</code>. The board redraws after each pair of moves. AttoChess searches four plies deep.</p>
+    <p>You play White. The computer plays Black and answers on its own. Enter a move as four characters, source file and rank followed by destination file and rank, for example <code>e2e4</code>. The board redraws after each pair of moves. AttoChess searches four plies deep.</p>
   </div>
 </section>
 
 <section id="scope">
   <div class="wrap prose">
     <h2><span class="idx">07</span>Scope and limitations</h2>
-    <p>AttoChess inherits its rule set from the program it was golfed from, and being honest about it is part of the point:</p>
+    <p>AttoChess inherits its rule set from the program it was golfed from. What that means in practice:</p>
     <ul>
       <li>It plays standard piece movement and captures with a real recursive search.</li>
-      <li>Like its ancestors in this size class, it does not implement castling, en passant, pawn promotion, or full check/checkmate adjudication; a side with no legal move that scores at or above zero simply halts.</li>
-      <li>Input is trusted: it expects well-formed coordinates and does not validate against illegal moves the way a full engine would.</li>
+      <li>Like its ancestors at this size, it does not implement castling, en passant, pawn promotion, or full check/checkmate adjudication. A side with no legal move that scores at or above zero simply halts.</li>
+      <li>Input is trusted. It expects well-formed coordinates and does not validate against illegal moves the way a full engine would.</li>
     </ul>
-    <p>These are the classic trade-offs of sub-1K chess, and they are exactly the constraints under which the byte count is a meaningful record.</p>
+    <p>Those are the standard trade-offs of sub-1K chess, and every program in the table above makes them. The byte count is only a meaningful comparison because they all play by the same reduced rules.</p>
   </div>
 </section>
 
@@ -819,7 +818,7 @@ AttoChess.com</code></pre>
       <p><strong>Dmitry Shechtman</strong>, <a href="https://github.com/leanchess/leanchess.github.io">LeanChess</a>, the 288-byte program this is built on.</p>
       <p><strong>&Oacute;scar Toledo G.</strong>, <a href="https://github.com/nanochess/Toledo-Atomchess">Toledo Atomchess</a>, which held the DOS <code>.COM</code> record between BootChess and LeanChess.</p>
       <p><strong>Olivier Poudade</strong>, <a href="http://olivier.poudade.free.fr/">BootChess</a>, the 487-byte boot-sector ancestor.</p>
-      <p><strong>David Horne</strong>, 1K ZX Chess (1982), the 672-byte original.</p>
+      <p><strong>David Horne</strong>, 1K ZX Chess (1982), the 672-byte original that started the chase.</p>
     </div>
 
     <p class="colophon">276 bytes &middot; 80186 &middot; MIT &middot; emulation by js-dos v8</p>
@@ -1133,7 +1132,7 @@ AttoChess.com</code></pre>
     title.appendChild(strong);
 
     var body = document.createElement("p");
-    body.textContent = "The engine found no move it judged worth playing, so it resigns rather than play on. This happens on checkmate, stalemate, or a draw — and also when every reply loses material by force. AttoChess does not distinguish between them.";
+    body.textContent = "The engine found no move it judged worth playing, so it resigns rather than play on. That happens on checkmate, on stalemate or a draw, and also when every reply loses material by force. AttoChess cannot tell those apart.";
 
     var again = document.createElement("button");
     again.className = "btn";
@@ -1261,19 +1260,19 @@ AttoChess.com</code></pre>
   }
 
   // js-dos keycodes: KBD_a..KBD_z = 65..90, KBD_0..KBD_9 = 48..57
-  // (see jsdos/js-dos.js keycode table). A move is only [a-h][1-8]{2},
-  // so the char code of the uppercased letter / the digit is the keycode.
+  // (see the keycode table in jsdos/js-dos.js). A move is only [a-h][1-8]{2},
+  // so the char code of the uppercased letter, or of the digit, is the keycode.
   function keyCode(ch) {
     return ch.toUpperCase().charCodeAt(0);
   }
 
-  // Feed the move one keystroke at a time. simulateKeyPress() presses a key
-  // for only ~16 emulated ms, a pulse narrow enough that DOSBox's keyboard
-  // scan can miss it under real-time frame pacing — a dropped key then shifts
-  // every later character into an earlier slot (g1f3 -> d3, etc). We instead
-  // drive an explicit key-down, hold, key-up per character with generous
-  // spacing so each keystroke is unambiguously registered and consumed by the
-  // program's blocking int 21h/AH=01h read before the next one is sent.
+  // Feed the move one keystroke at a time. simulateKeyPress() holds a key for
+  // only ~16 emulated ms, which is narrow enough that DOSBox's keyboard scan
+  // can miss it under real-time frame pacing. Drop one key and every later
+  // character shifts into an earlier slot (g1f3 arrives as d3, and so on).
+  // So drive an explicit key-down, hold, key-up per character with generous
+  // spacing, which gives the program's blocking int 21h/AH=01h read time to
+  // consume each keystroke before the next one is sent.
   function typeMove(text) {
     var codes = [];
     for (var i = 0; i < text.length; i++) codes.push(keyCode(text.charAt(i)));
