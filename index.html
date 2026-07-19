@@ -688,7 +688,7 @@ ls -l AttoChess.com       <span class="c">; 276 bytes</span></code></pre>
   <div class="wrap">
     <h2><span class="idx">05</span>Optimizations</h2>
     <div class="prose">
-      <p>The core search is unchanged from LeanChess. All ten bytes come out of the two things around it, how the board is drawn and how your move is decoded, plus one change inside the search loop that frees a register.</p>
+      <p>The core search is unchanged from LeanChess. All twelve bytes come out of the two things around it, how the board is drawn and how your move is decoded, plus two changes inside the search loop: one frees a register, the other tightens the move-table addressing.</p>
     </div>
 
     <article class="opt prose">
@@ -769,6 +769,25 @@ ls -l AttoChess.com       <span class="c">; 276 bytes</span></code></pre>
     jz vec_cont</code></pre>
       <p>Because the direction test now keys off the side-to-move color rather than an absolute sign, pawns move correctly for both colors from the one code path.</p>
     </article>
+
+    <article class="opt prose">
+      <span class="opt__num">06 &middot; Addressing</span>
+      <h3>Piece type held in BX, so the move-table address folds into one lea</h3>
+      <p>Contributed by <a href="https://github.com/peterferrie">Peter Ferrie</a>.</p>
+      <p>The source loop reads a square, masks it down to a piece type, and uses that as an index into the move-vector metadata. Holding that index in AX costs a separate copy into BL and a two-instruction address calculation:</p>
+<pre><code>    mov al, [bp]
+    and ax, 07h
+    mov bl, al                          <span class="c">; save piece type</span>
+    mov si, offset moves_knight - 2     <span class="c">; base</span>
+    add si, ax                          <span class="c">; + index</span></code></pre>
+      <p>Reading straight into BL means the index is already where the slider test later needs it, and the whole address computation collapses into a single <code>lea</code>:</p>
+<pre><code>    mov bl, [bp]
+    and bx, 07h                         <span class="c">; also zeroes BH</span>
+    lea si, [bx + offset moves_knight - 2]
+    lodsb
+    cbw                                 <span class="c">; AH is no longer zeroed by the AND</span></code></pre>
+      <p>There is one subtlety. The original <code>and ax, 07h</code> was doing double duty: it also cleared AH, so the following <code>add si, ax</code> treated the loaded byte as a 16-bit value. Masking BX leaves AH untouched, so a one-byte <code>cbw</code> has to restore that invariant. Net saving: 2 bytes.</p>
+    </article>
   </div>
 </section>
 
@@ -819,6 +838,7 @@ AttoChess.com</code></pre>
       <p><strong>&Oacute;scar Toledo G.</strong>, <a href="https://github.com/nanochess/Toledo-Atomchess">Toledo Atomchess</a>, which held the DOS <code>.COM</code> record between BootChess and LeanChess.</p>
       <p><strong>Olivier Poudade</strong>, <a href="http://olivier.poudade.free.fr/">BootChess</a>, the 487-byte boot-sector ancestor.</p>
       <p><strong>David Horne</strong>, 1K ZX Chess (1982), the 672-byte original that started the chase.</p>
+      <p><strong><a href="https://github.com/peterferrie">Peter Ferrie</a></strong>, the BX/<code>lea</code> rewrite of the move-table addressing in the source loop, worth 2 bytes.</p>
     </div>
 
     <p class="colophon">276 bytes &middot; 80186 &middot; MIT &middot; emulation by js-dos v8</p>
