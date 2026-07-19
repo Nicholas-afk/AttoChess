@@ -1,10 +1,10 @@
 # AttoChess
 
-**A complete, playable chess program for 16-bit x86 DOS — in 278 bytes.**
+**A complete, playable chess program for 16-bit x86 DOS — in 276 bytes.**
 
 AttoChess is a size-optimized descendant of **LeanChess**. It plays the same game,
 in the same environment, using the same 0x88-style board and recursive minimax
-search — but assembles to **278 bytes**, ten bytes smaller than the 288-byte
+search — but assembles to **276 bytes**, twelve bytes smaller than the 288-byte
 program that previously held the record for the smallest working chess engine.
 
 ```
@@ -12,14 +12,15 @@ Engine              Bytes   Year   Author                Platform
 ----------------------------------------------------------------------
 1K ZX Chess           672   1982   David Horne           Sinclair ZX81
 BootChess             487   2015   Olivier Poudade       x86 boot sector
+Toledo Atomchess      352   2015   Óscar Toledo G.       x86 DOS (.COM)
 LeanChess             288   2019   Dmitry Shechtman      x86 DOS (.COM)
-AttoChess             278   2026   Nicholas Tanner       x86 DOS (.COM)
+AttoChess             276   2026   Nicholas Tanner       x86 DOS (.COM)
 ```
 
 > **What "working" means here.** AttoChess is not a byte-count stunt that only sets
 > up a board. It boots, draws the position, reads your move from the keyboard,
 > searches with real 4-ply recursion, replies with a legal move, and loops. The
-> 278-byte figure is the assembled size of that whole program, verified
+> 276-byte figure is the assembled size of that whole program, verified
 > byte-for-byte on the produced `.COM`.
 
 ---
@@ -38,6 +39,12 @@ part of the point.
   a step further, and AttoChess is a **derivative work** that retains Shechtman's
   copyright and MIT license in full. If you find this interesting, read his source
   first.
+- **[Toledo Atomchess](https://github.com/nanochess/Toledo-Atomchess)** — Óscar
+  Toledo G. (nanochess), 2015. Held the DOS `.COM` record between BootChess and
+  LeanChess, and refined it over several years down to 352 bytes (356 as a
+  bootable sector, 326 in its stripped "HACK" build). Like everything in this size
+  class — AttoChess included — it leaves out castling, en passant, and promotion.
+  It is the step the 487 → 288 jump usually skips over, and it deserves the credit.
 - **[BootChess](http://olivier.poudade.free.fr/)** — Olivier Poudade, 2015. Fit a
   chess game into a 512-byte boot sector (487 bytes of code) and reset public
   expectations of how small chess could go.
@@ -54,7 +61,7 @@ source and measure the output:
 ```bash
 tasm AttoChess
 tlink /t AttoChess        # /t produces a .COM, not an .EXE
-ls -l AttoChess.com       # 278 bytes
+ls -l AttoChess.com       # 276 bytes
 ```
 
 There is nothing else in the image — no data-section padding, no separate render
@@ -65,10 +72,11 @@ is code or table data the program actually uses.
 
 ## What makes AttoChess tiny
 
-AttoChess keeps the original's core search verbatim. All ten bytes come from
+AttoChess keeps the original's core search verbatim. All twelve bytes come from
 rethinking the two things *around* the search — **how the board is drawn** and
-**how your move is decoded** — plus one change inside the search loop that frees a
-register. Here is every optimization, top to bottom.
+**how your move is decoded** — plus two changes inside the search loop, one that
+frees a register and one that tightens the move-table addressing. Here is every
+optimization, top to bottom.
 
 ### 1. The board draws itself — no render buffer, no `int 21h/09h`
 
@@ -198,6 +206,38 @@ pawn_cont:
 Because the direction test now keys off the side-to-move color rather than an
 absolute sign, pawns move correctly for **both** colors from the one code path.
 
+### 6. Piece type held in BX so the move-table address folds into one `lea`
+
+*Contributed by [Peter Ferrie](https://github.com/peterferrie).*
+
+The source loop reads a square, masks it down to a piece type, and uses that as an
+index into the move-vector metadata. Holding that index in AX costs a separate copy
+into BL and a two-instruction address calculation:
+
+```asm
+    mov al, [bp]
+    and ax, 07h
+    mov bl, al                          ; save piece type
+    mov si, offset moves_knight - 2     ; base
+    add si, ax                          ; + index
+```
+
+Reading straight into BL instead means the index is *already* where the slider test
+later needs it, and the whole address computation collapses into a single `lea`:
+
+```asm
+    mov bl, [bp]
+    and bx, 07h                         ; also zeroes BH
+    lea si, [bx + offset moves_knight - 2]
+    lodsb
+    cbw                                 ; AH is no longer zeroed by the AND
+```
+
+One subtlety makes this work: the original `and ax, 07h` was doing double duty —
+clearing AH so the following `add si, ax` treated the loaded byte as a 16-bit
+value. Masking BX instead leaves AH untouched, so a one-byte `cbw` has to restore
+that invariant. Net saving: **2 bytes**.
+
 ---
 
 ## Building & running
@@ -211,7 +251,7 @@ tasm AttoChess
 tlink /t AttoChess        # /t produces a .COM, not an .EXE
 ```
 
-This yields `AttoChess.com` — a 278-byte DOS executable.
+This yields `AttoChess.com` — a 276-byte DOS executable.
 
 ### Run under DOSBox
 
@@ -276,7 +316,12 @@ requires. Please keep it there.
 
 - **Dmitry Shechtman** — [LeanChess](https://github.com/leanchess/leanchess.github.io),
   the 288-byte program this is built on. The foundation for everything here.
+- **Óscar Toledo G.** — [Toledo Atomchess](https://github.com/nanochess/Toledo-Atomchess),
+  which held the DOS `.COM` record between BootChess and LeanChess.
 - **Olivier Poudade** — [BootChess](http://olivier.poudade.free.fr/), the 487-byte
   boot-sector ancestor.
 - **David Horne** — 1K ZX Chess (1982), the 672-byte original that started the
   chase.
+- **[Peter Ferrie](https://github.com/peterferrie)** — the BX/`lea` rewrite of the
+  move-table addressing in the source loop (§6), worth 2 bytes, and for pointing
+  out that Atomchess belonged in the lineage above.
