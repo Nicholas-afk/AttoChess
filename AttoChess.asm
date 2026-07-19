@@ -1,5 +1,5 @@
 ; ============================================================================
-;  AttoChess -- a complete chess program for 16-bit x86 DOS in 278 bytes.
+;  AttoChess -- a complete chess program for 16-bit x86 DOS in 276 bytes.
 ;
 ;  Copyright (c) 2026 Nicholas Tanner
 ;
