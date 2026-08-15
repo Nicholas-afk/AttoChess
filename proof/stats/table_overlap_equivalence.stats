@@ -1,0 +1,1 @@
+Statistics { conflicts: 3, decisions: 4, propagations: 30, mk clause: 100, del clause: 59, num checks: 1, mk bool var: 39, num allocs: 17474785, rlimit count: 25411, max memory: 35.27, memory: 34.38 }

@@ -1,15 +1,10 @@
 ; ============================================================================
-;  AttoChess: a complete chess program for 16-bit x86 DOS in 276 bytes.
+;  AttoChess optimized candidate.
 ;
 ;  Copyright (c) 2026 Nicholas Tanner
 ;
-;  The display loop streams board bytes straight to the console with INT 29h.
-;  The input decoder folds its ASCII constants into one wrapping base address,
-;  and the search keeps its depth counter live in CX instead of reloading it
-;  from the stack on every recursive call.
-;
-;  This is a derivative work of Dmitry Shechtman's LeanChess.  His copyright
-;  and license are reproduced in full immediately below.  Do not remove them.
+;  This is a derivative work of Dmitry Shechtman's LeanChess. His copyright
+;  and license are reproduced in full immediately below. Do not remove them.
 ; ============================================================================
 ;
 ; Copyright (c) 2019 Dmitry Shechtman
@@ -31,236 +26,240 @@
 ; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 ; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ; SOFTWARE.
+;
+; AttoChess 272-byte candidate, NASM syntax.
+;
+; Derived from the fingerprinted 276-byte AttoChess distribution artifact.
+; It contains four compositionally checked one-byte reductions.
+;
+; (1) The move prologue exchanges zero into the source before testing the
+;     resulting AL. On the nonempty path this is identical to the source;
+;     on the empty path it changes no memory and enters the same deliberate
+;     infinite loop. Reusing AL makes the three-byte memory CMP unnecessary.
+;
+; (2) The pawn predicate is occupancy == vector-parity. AND/NEG obtains the
+;     occupancy bit in CF; RCL maps occupancy and vector parity into AL bits
+;     0 and 1; TEST makes PF true iff those bits agree. PUSH/POP restores the
+;     original AX while preserving PF. AH therefore remains available for
+;     undo, eliminating the old destination clone in BH.
+;
+; (3) eval_db's final king value, 2Eh, is also init_db's first top-border fill
+;     byte. It has the border bit for both 18h and 28h masks, is outside the
+;     displayed/scanned board rows, and remains the exact XLAT value at index 7.
+;     Overlapping the two tables removes one data byte.
+;
+; (4) AH-based undo leaves BH free. eval_db, moves_db, and all vectors reside
+;     in runtime page 01xx, so BH=01h from MOV BX,eval_db can remain invariant.
+;     MOVES_DB lives in the dead island after SUB_RET. Its absolute low-byte
+;     vector pointers plus the preserved BH allow a disp8 LEA, saving one byte.
 
-; Each 12-byte board row carries CR,LF,CR,LF (0Dh,0Ah,0Dh,0Ah) in its first four
-; columns, where LeanChess used 08h filler.  CR and LF both have bit 3 set, so
-; they still read as border to every border/color mask test, and the raw board
-; doubles as its own printable frame.  The display loop can therefore stream
-; board bytes straight to the console with INT 29h: borders become newlines,
-; empty squares become NULs, and pieces get the +1 / AND 27h / ADD 4Bh ASCII
-; transform.  Nothing else is needed to draw a position, so there is no render
-; buffer, no '$'-terminated INT 21h/09h write, no INT 10h mode set, and no board
-; array reserved in the image.
-
-.model tiny
-.186
-code segment
-    org 100h
-    assume cs: code
+bits 16
+cpu 186
+org 100h
 
 start:
-    cld                                        ;DF is not guaranteed clear at entry
-    mov cx, 13                                 ;Row count (entry CX is not guaranteed),
-                                               ;row 12 borders knight jumps from h1
-    mov si, offset init_db                     ;Set row metadata address
-    mov di, offset board_db                    ;Set board address
+    cld
+    mov cx, 13
+    mov si, init_db
+    mov di, board_db
 
 init_loop:
-    push cx                                    ;Save row counter
-    mov ax, 0A0Dh                              ;Border = CR,LF
-    stosw                                      ;Write two bytes
-    stosw                                      ;Cols 0-3: 0D 0A 0D 0A
-    mov cl, 8                                  ;Set square counter
-    lodsb                                      ;Read one byte
-    test al, 80h                               ;First rank?
-    jz init_cont                               ;No, proceed to write row
-    dec si                                     ;Marker doubles as first piece
-    rep movsb                                  ;Copy row
+    push cx
+    mov ax, 0A0Dh
+    stosw
+    stosw
+    mov cl, 8
+    lodsb
+    test al, 80h
+    jz init_cont
+    dec si
+    rep movsb
 
 init_cont:
-    rep stosb                                  ;Write row
-    pop cx                                     ;Restore row counter
-    loop init_loop                             ;Rows 10+ self-feed from board
+    rep stosb
+    pop cx
+    loop init_loop
 
 main_loop:
-    mov si, offset board_db + 24               ;Row 2 (black back rank), col 0
-    mov cl, 98                                 ;8 rank rows + final CR,LF (CH=0)
+    mov si, board_db + 24
+    mov cl, 98
 
 disp_loop:
-    lodsb                                      ;Read square contents
-    test al, 30h                               ;Piece?
-    jz disp_cont                               ;No, emit raw (CR/LF/NUL)
+    lodsb
+    test al, 30h
+    jz disp_cont
 
 disp_piece:
-    inc ax                                     ;Zero-align king
-    and al, 27h                                ;Isolate piece type and black/lowercase
-    add al, 4Bh                                ;King, (none), (reserved), kNight, bishOp, Pawn, Queen, Rook
+    inc ax
+    and al, 27h
+    add al, 4Bh
 
 disp_cont:
-    int 29h                                    ;DOS fast console output (AL)
-    loop disp_loop                             ;Move to next square
+    int 29h
+    loop disp_loop
 
 play:
-    mov dx, 1828h                              ;Set player's and opponent's colors
-    mov cl, 4                                  ;Set search depth
-    push offset main_loop                      ;Repeat forever
-    mov ax, offset move_sub                    ;Perform two moves:
-    push ax                                    ;Perform computer's move
-    push ax                                    ;Perform human's move
-    push offset read_sub                       ;Read destination square
+    mov dx, 1828h
+    mov cl, 4
+    push word main_loop
+    mov ax, move_sub
+    push ax
+    push ax
+    push word read_sub
 
-;Read square from input
-;Output:
-;  DI - Square address
 read_sub:
-    mov bp, di                                 ;Clone address
-    mov di, offset board_db + 123 + 0CE0h      ;Base folds in ASCII offsets (mod 64K)
-    mov ah, 01h                                ;Read character
-    int 21h                                    ;DOS I/O function
-    add di, ax                                 ;AX = 0100h + file char
-    int 21h                                    ;DOS I/O function
-    imul ax, 12                                ;AX = 12 * (0130h + rank digit)
-    sub di, ax                                 ;Subtract result from base address
+    mov bp, di
+    mov di, board_db + 123 + 0CE0h
+    mov ah, 01h
+    int 21h
+    add di, ax
+    int 21h
+    imul ax, 12
+    sub di, ax
 
 sub_ret:
     ret
 
-;Perform move and find best next move
-;Input:
-;  DL - Player's color + border
-;  DH - Opponent's color + border
-;  CX - Search depth
-;  BP - Source square address
-;  DI - Destination square address
-;Output:
-;  AL - Player's max value
-;  AH - Opponent's max value
-;  DL - Opponent's color + border
-;  DH - Player's color + border
-;  SI - Opponent's best source square address
-;  DI - Opponent's best destination square address
-move_sub:
-    cmp [bp], ch                               ;CH=0: empty source = search wrote no best
-    jz $                                       ;No move scores >= 0: halt (mate/loss)
-    xor ax, ax                                 ;Clear contents + opponent's max value
-    xchg al, [bp]                              ;Read and write source square
-    xchg al, [di]                              ;Read and write destination square
-    xchg dl, dh                                ;Swap player's and opponent's colors
+; Absolute low-byte vector pointers. SUB_RET prevents fallthrough, while all
+; direct move calls enter MOVE_SUB below this table.
+moves_db:
+    moves_knight db vec_knight - $$
+    moves_bishop db vec_bishop - $$
+    moves_pawn   db vec_pawn   - $$
+    moves_queen  db vec_king   - $$
+    moves_rook   db vec_rook   - $$
+    moves_king   db vec_king   - $$
 
-    and al, 07h                                ;Isolate piece type
-    mov bx, offset eval_db                     ;Set base values' address
-    xlat                                       ;Get player's gain
-    jcxz sub_ret                               ;If depth is zero, return
+; BX is 0100h+type, while MOVES_DB[type-2] is at
+; 0100h+(MOVES_DB-$$)+(type-2).  Subtracting $$ makes this an absolute
+; assembly-time scalar, so NASM can prove the displacement fits in int8.
+moves_disp equ moves_db - $$ - 2
+
+move_sub:
+    xor ax, ax
+    xchg al, [bp]
+    test al, al
+    jz $
+    xchg al, [di]
+    xchg dl, dh
+
+    and al, 07h
+    mov bx, eval_db
+    xlatb
+    jcxz sub_ret
 
 next:
-    pusha                                      ;Save all GP registers
-    mov bp, offset board_db + 28               ;Start from top left corner
+    pusha
+    mov bp, board_db + 28
 
 src_loop:
-    mov bl, [bp]                               ;Read source square
-    test bl, dl                                ;Opponent's piece or border?
-    jnz src_cont                               ;Yes, proceed to next source square
+    mov bl, [bp]
+    test bl, dl
+    jnz src_cont
 
-    and bx, 07h                                ;Isolate piece type
-    jz src_cont                                ;No piece, proceed to next source square
+    ; Preserve BH=01h while isolating the type. MOVES_DISP=53h is the signed
+    ; disp8 from BX=0100h+type to MOVES_DB[type-2].
+    and bl, 07h
+    jz src_cont
 
-    lea si, [bx + offset moves_knight - 2]     ;Calculate absolute metadata address
-    lodsb                                      ;Read relative vectors address
-    cbw                                        ;Zero AH
-    add si, ax                                 ;Calculate absolute vectors address
+    ; The BYTE qualifier is an encoding proof obligation: NASM otherwise
+    ; conservatively selects disp16 for a relocatable label expression.
+    lea si, [byte bx + moves_disp]
+    lodsb
+    mov ah, bh
+    xchg ax, si
 
 vec_loop:
-    lodsb                                      ;Read vector
+    lodsb
 
 sign_loop:
-    mov di, bp                                 ;Clone source square address
+    mov di, bp
 
 dest_loop:
-    cbw                                        ;Extend vector's sign
-    add di, ax                                 ;Calculate destination square address
-    mov ah, [di]                               ;Read destination square
-    mov bh, ah                                 ;Clone destination square contents
-    test ah, dh                                ;Player's piece or border?
-    jnz vec_cont                               ;Yes, proceed to next vector
+    cbw
+    add di, ax
+    mov ah, [di]
+    test ah, dh
+    jnz vec_cont
 
-    cmp bl, 04h                                ;Black or white pawn?
-    jne eval                                   ;No, proceed to evaluate move
+    cmp bl, 04h
+    jne eval
 
 pawn:
-    push ax                                    ;Save vector (AL) + destination (AH)
-    xor al, dh                                 ;Bit 5 := vector sign XOR side to move
-    test al, 20h                               ;Forward for the moving color?
-    pop ax                                     ;Restore; POP leaves flags intact
-    jz vec_cont                                ;Backward move, proceed to next vector
-    test al, 1                                 ;Odd offset (+/-11, +/-13) = diagonal
-    jnz pawn_cont                              ;Diagonal, must capture
+    push ax
+    xor al, dh
+    test al, 20h
+    pop ax
+    jz vec_cont
 
-pawn_inv:
-    xor ah, 30h                                ;Straight (+/-12): invert dest's color
-
-pawn_cont:
-    test ah, dl                                ;Opponent's piece (or border)?
-    jz vec_cont                                ;No, proceed to next vector
+    ; Preserve AX while mapping occupancy and vector parity to two low bits.
+    push ax
+    and ah, dl
+    neg ah
+    rcl al, 1
+    test al, 3
+    pop ax
+    jpo vec_cont
 
 eval:
-    pusha                                      ;Save all GP registers
-    push bp                                    ;Save source square address
-    push di                                    ;Save destination square address
+    pusha
+    push bp
+    push di
 
-    mov si, sp                                 ;Clone stack pointer
-    dec cx                                     ;Decrement depth (restored by popa)
-    call move_sub                              ;Recursively call self
-    cmp al, [si + 35]                          ;Max value exceeds current value?
-    pop di                                     ;Restore destination square address
-    pop bp                                     ;Restore source square address
-    jl undo                                    ;Yes, proceed to undo move
+    mov si, sp
+    dec cx
+    call move_sub
+    cmp al, [si + 35]
+    pop di
+    pop bp
+    jl undo
 
 best:
-    mov [si + 35], al                          ;Write max value
-    mov [si + 20], di                          ;Write destination square address
-    mov [si + 24], bp                          ;Write source square address
+    mov [si + 35], al
+    mov [si + 20], di
+    mov [si + 24], bp
 
 undo:
-    popa                                       ;Restore all GP registers
-    xchg bh, [di]                              ;Read and write original destination square
-    mov [bp], bh                               ;Write original source square
-    test [di], dl                              ;Opponent's piece (or border)?
-    jnz vec_cont                               ;Yes, proceed to next vector
+    popa
+    ; The predicate restored AX, so AH still holds the original destination.
+    xchg ah, [di]
+    mov [bp], ah
+    test [di], dl
+    jnz vec_cont
 
-    test bl, bl                                ;Check piece type
-    jp dest_loop                               ;Slider, move to next destination
+    test bl, bl
+    jpe dest_loop
 
 vec_cont:
-    neg al                                     ;Invert vector
-    js sign_loop                               ;Negative, proceed to reset destination address
-    jnz vec_loop                               ;Non-zero, move to next vector
+    neg al
+    js sign_loop
+    jnz vec_loop
 
 src_cont:
-    inc bp                                     ;Increment source square address
-    cmp bp, offset board_db + 120              ;Past last square?
-    jnz src_loop                               ;No, move to next source
+    inc bp
+    cmp bp, board_db + 120
+    jnz src_loop
 
 move_done:
-    popa                                       ;Restore all GP registers
-    sub al, ah                                 ;Calculate player's max value
+    popa
+    sub al, ah
     ret
 
-moves_db:
-    moves_knight db vec_knight - moves_knight - 1
-    moves_bishop db vec_bishop - moves_bishop - 1
-    moves_pawn   db vec_pawn   - moves_pawn   - 1
-    moves_queen  db vec_king   - moves_queen  - 1
-    moves_rook   db vec_rook   - moves_rook   - 1
-    moves_king   db vec_king   - moves_king   - 1
+    vec_knight db 10, 14, 23, 25, 0
+    vec_pawn   db 12
+    vec_bishop db 11, 13, 0
+    vec_king   db 11, 13
+    vec_rook   db 12, 1
 
-    vec_knight   db  10,  14,  23,  25,   0
-    vec_pawn     db  12
-    vec_bishop   db  11,  13,   0
-    vec_king     db  11,  13
-    vec_rook     db  12,   1
-
-eval_db: ;[0] doubles as vector terminator
-    db 0, 0, 3, 3, 1, 9, 5, 46
+eval_db:
+    db 0, 0, 3, 3, 1, 9, 5
 
 init_db:
-    db 09h, 09h                                ;2 border rows (fill 09h)
+    db 2Eh, 09h
     db 0A6h, 0A2h, 0A3h, 0A5h, 0A7h, 0A3h, 0A2h, 0A6h
     db 24h
     db 00h, 00h, 00h, 00h
     db 14h
     db 96h, 92h, 93h, 95h, 97h, 93h, 92h, 96h
 
-board_db: ;Rows 10+ self-feed; occupies RAM only, not the image
-
-code ends
-end start
+board_db:

@@ -1,0 +1,265 @@
+     1                                  ; ============================================================================
+     2                                  ;  AttoChess optimized candidate.
+     3                                  ;
+     4                                  ;  Copyright (c) 2026 Nicholas Tanner
+     5                                  ;
+     6                                  ;  This is a derivative work of Dmitry Shechtman's LeanChess. His copyright
+     7                                  ;  and license are reproduced in full immediately below. Do not remove them.
+     8                                  ; ============================================================================
+     9                                  ;
+    10                                  ; Copyright (c) 2019 Dmitry Shechtman
+    11                                  ;
+    12                                  ; Permission is hereby granted, free of charge, to any person obtaining a copy
+    13                                  ; of this software and associated documentation files (the "Software"), to deal
+    14                                  ; in the Software without restriction, including without limitation the rights
+    15                                  ; to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    16                                  ; copies of the Software, and to permit persons to whom the Software is
+    17                                  ; furnished to do so, subject to the following conditions:
+    18                                  ;
+    19                                  ; The above copyright notice and this permission notice shall be included in all
+    20                                  ; copies or substantial portions of the Software.
+    21                                  ;
+    22                                  ; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    23                                  ; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    24                                  ; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    25                                  ; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    26                                  ; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    27                                  ; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    28                                  ; SOFTWARE.
+    29                                  ;
+    30                                  ; AttoChess 272-byte candidate, NASM syntax.
+    31                                  ;
+    32                                  ; Derived from the fingerprinted 276-byte AttoChess distribution artifact.
+    33                                  ; It contains four compositionally checked one-byte reductions.
+    34                                  ;
+    35                                  ; (1) The move prologue exchanges zero into the source before testing the
+    36                                  ;     resulting AL. On the nonempty path this is identical to the source;
+    37                                  ;     on the empty path it changes no memory and enters the same deliberate
+    38                                  ;     infinite loop. Reusing AL makes the three-byte memory CMP unnecessary.
+    39                                  ;
+    40                                  ; (2) The pawn predicate is occupancy == vector-parity. AND/NEG obtains the
+    41                                  ;     occupancy bit in CF; RCL maps occupancy and vector parity into AL bits
+    42                                  ;     0 and 1; TEST makes PF true iff those bits agree. PUSH/POP restores the
+    43                                  ;     original AX while preserving PF. AH therefore remains available for
+    44                                  ;     undo, eliminating the old destination clone in BH.
+    45                                  ;
+    46                                  ; (3) eval_db's final king value, 2Eh, is also init_db's first top-border fill
+    47                                  ;     byte. It has the border bit for both 18h and 28h masks, is outside the
+    48                                  ;     displayed/scanned board rows, and remains the exact XLAT value at index 7.
+    49                                  ;     Overlapping the two tables removes one data byte.
+    50                                  ;
+    51                                  ; (4) AH-based undo leaves BH free. eval_db, moves_db, and all vectors reside
+    52                                  ;     in runtime page 01xx, so BH=01h from MOV BX,eval_db can remain invariant.
+    53                                  ;     MOVES_DB lives in the dead island after SUB_RET. Its absolute low-byte
+    54                                  ;     vector pointers plus the preserved BH allow a disp8 LEA, saving one byte.
+    55                                  
+    56                                  bits 16
+    57                                  cpu 186
+    58                                  org 100h
+    59                                  
+    60                                  start:
+    61 00000000 FC                          cld
+    62 00000001 B90D00                      mov cx, 13
+    63 00000004 BE[F800]                    mov si, init_db
+    64 00000007 BF[1001]                    mov di, board_db
+    65                                  
+    66                                  init_loop:
+    67 0000000A 51                          push cx
+    68 0000000B B80D0A                      mov ax, 0A0Dh
+    69 0000000E AB                          stosw
+    70 0000000F AB                          stosw
+    71 00000010 B108                        mov cl, 8
+    72 00000012 AC                          lodsb
+    73 00000013 A880                        test al, 80h
+    74 00000015 7403                        jz init_cont
+    75 00000017 4E                          dec si
+    76 00000018 F3A4                        rep movsb
+    77                                  
+    78                                  init_cont:
+    79 0000001A F3AA                        rep stosb
+    80 0000001C 59                          pop cx
+    81 0000001D E2EB                        loop init_loop
+    82                                  
+    83                                  main_loop:
+    84 0000001F BE[2801]                    mov si, board_db + 24
+    85 00000022 B162                        mov cl, 98
+    86                                  
+    87                                  disp_loop:
+    88 00000024 AC                          lodsb
+    89 00000025 A830                        test al, 30h
+    90 00000027 7405                        jz disp_cont
+    91                                  
+    92                                  disp_piece:
+    93 00000029 40                          inc ax
+    94 0000002A 2427                        and al, 27h
+    95 0000002C 044B                        add al, 4Bh
+    96                                  
+    97                                  disp_cont:
+    98 0000002E CD29                        int 29h
+    99 00000030 E2F2                        loop disp_loop
+   100                                  
+   101                                  play:
+   102 00000032 BA2818                      mov dx, 1828h
+   103 00000035 B104                        mov cl, 4
+   104 00000037 68[1F00]                    push word main_loop
+   105 0000003A B8[5B00]                    mov ax, move_sub
+   106 0000003D 50                          push ax
+   107 0000003E 50                          push ax
+   108 0000003F 68[4200]                    push word read_sub
+   109                                  
+   110                                  read_sub:
+   111 00000042 89FD                        mov bp, di
+   112 00000044 BF[6B0E]                    mov di, board_db + 123 + 0CE0h
+   113 00000047 B401                        mov ah, 01h
+   114 00000049 CD21                        int 21h
+   115 0000004B 01C7                        add di, ax
+   116 0000004D CD21                        int 21h
+   117 0000004F 6BC00C                      imul ax, 12
+   118 00000052 29C7                        sub di, ax
+   119                                  
+   120                                  sub_ret:
+   121 00000054 C3                          ret
+   122                                  
+   123                                  ; Absolute low-byte vector pointers. SUB_RET prevents fallthrough, while all
+   124                                  ; direct move calls enter MOVE_SUB below this table.
+   125                                  moves_db:
+   126 00000055 E4                          moves_knight db vec_knight - $$
+   127 00000056 EA                          moves_bishop db vec_bishop - $$
+   128 00000057 E9                          moves_pawn   db vec_pawn   - $$
+   129 00000058 ED                          moves_queen  db vec_king   - $$
+   130 00000059 EF                          moves_rook   db vec_rook   - $$
+   131 0000005A ED                          moves_king   db vec_king   - $$
+   132                                  
+   133                                  ; BX is 0100h+type, while MOVES_DB[type-2] is at
+   134                                  ; 0100h+(MOVES_DB-$$)+(type-2).  Subtracting $$ makes this an absolute
+   135                                  ; assembly-time scalar, so NASM can prove the displacement fits in int8.
+   136                                  moves_disp equ moves_db - $$ - 2
+   137                                  
+   138                                  move_sub:
+   139 0000005B 31C0                        xor ax, ax
+   140 0000005D 864600                      xchg al, [bp]
+   141 00000060 84C0                        test al, al
+   142 00000062 74FE                        jz $
+   143 00000064 8605                        xchg al, [di]
+   144 00000066 86D6                        xchg dl, dh
+   145                                  
+   146 00000068 2407                        and al, 07h
+   147 0000006A BB[F100]                    mov bx, eval_db
+   148 0000006D D7                          xlatb
+   149 0000006E E3E4                        jcxz sub_ret
+   150                                  
+   151                                  next:
+   152 00000070 60                          pusha
+   153 00000071 BD[2C01]                    mov bp, board_db + 28
+   154                                  
+   155                                  src_loop:
+   156 00000074 8A5E00                      mov bl, [bp]
+   157 00000077 84D3                        test bl, dl
+   158 00000079 755E                        jnz src_cont
+   159                                  
+   160                                      ; Preserve BH=01h while isolating the type. MOVES_DISP=53h is the signed
+   161                                      ; disp8 from BX=0100h+type to MOVES_DB[type-2].
+   162 0000007B 80E307                      and bl, 07h
+   163 0000007E 7459                        jz src_cont
+   164                                  
+   165                                      ; The BYTE qualifier is an encoding proof obligation: NASM otherwise
+   166                                      ; conservatively selects disp16 for a relocatable label expression.
+   167 00000080 8D7753                      lea si, [byte bx + moves_disp]
+   168 00000083 AC                          lodsb
+   169 00000084 88FC                        mov ah, bh
+   170 00000086 96                          xchg ax, si
+   171                                  
+   172                                  vec_loop:
+   173 00000087 AC                          lodsb
+   174                                  
+   175                                  sign_loop:
+   176 00000088 89EF                        mov di, bp
+   177                                  
+   178                                  dest_loop:
+   179 0000008A 98                          cbw
+   180 0000008B 01C7                        add di, ax
+   181 0000008D 8A25                        mov ah, [di]
+   182 0000008F 84F4                        test ah, dh
+   183 00000091 7540                        jnz vec_cont
+   184                                  
+   185 00000093 80FB04                      cmp bl, 04h
+   186 00000096 7514                        jne eval
+   187                                  
+   188                                  pawn:
+   189 00000098 50                          push ax
+   190 00000099 30F0                        xor al, dh
+   191 0000009B A820                        test al, 20h
+   192 0000009D 58                          pop ax
+   193 0000009E 7433                        jz vec_cont
+   194                                  
+   195                                      ; Preserve AX while mapping occupancy and vector parity to two low bits.
+   196 000000A0 50                          push ax
+   197 000000A1 20D4                        and ah, dl
+   198 000000A3 F6DC                        neg ah
+   199 000000A5 D0D0                        rcl al, 1
+   200 000000A7 A803                        test al, 3
+   201 000000A9 58                          pop ax
+   202 000000AA 7B27                        jpo vec_cont
+   203                                  
+   204                                  eval:
+   205 000000AC 60                          pusha
+   206 000000AD 55                          push bp
+   207 000000AE 57                          push di
+   208                                  
+   209 000000AF 89E6                        mov si, sp
+   210 000000B1 49                          dec cx
+   211 000000B2 E8A6FF                      call move_sub
+   212 000000B5 3A4423                      cmp al, [si + 35]
+   213 000000B8 5F                          pop di
+   214 000000B9 5D                          pop bp
+   215 000000BA 7C09                        jl undo
+   216                                  
+   217                                  best:
+   218 000000BC 884423                      mov [si + 35], al
+   219 000000BF 897C14                      mov [si + 20], di
+   220 000000C2 896C18                      mov [si + 24], bp
+   221                                  
+   222                                  undo:
+   223 000000C5 61                          popa
+   224                                      ; The predicate restored AX, so AH still holds the original destination.
+   225 000000C6 8625                        xchg ah, [di]
+   226 000000C8 886600                      mov [bp], ah
+   227 000000CB 8415                        test [di], dl
+   228 000000CD 7504                        jnz vec_cont
+   229                                  
+   230 000000CF 84DB                        test bl, bl
+   231 000000D1 7AB7                        jpe dest_loop
+   232                                  
+   233                                  vec_cont:
+   234 000000D3 F6D8                        neg al
+   235 000000D5 78B1                        js sign_loop
+   236 000000D7 75AE                        jnz vec_loop
+   237                                  
+   238                                  src_cont:
+   239 000000D9 45                          inc bp
+   240 000000DA 81FD[8801]                  cmp bp, board_db + 120
+   241 000000DE 7594                        jnz src_loop
+   242                                  
+   243                                  move_done:
+   244 000000E0 61                          popa
+   245 000000E1 28E0                        sub al, ah
+   246 000000E3 C3                          ret
+   247                                  
+   248 000000E4 0A0E171900                  vec_knight db 10, 14, 23, 25, 0
+   249 000000E9 0C                          vec_pawn   db 12
+   250 000000EA 0B0D00                      vec_bishop db 11, 13, 0
+   251 000000ED 0B0D                        vec_king   db 11, 13
+   252 000000EF 0C01                        vec_rook   db 12, 1
+   253                                  
+   254                                  eval_db:
+   255 000000F1 00000303010905              db 0, 0, 3, 3, 1, 9, 5
+   256                                  
+   257                                  init_db:
+   258 000000F8 2E09                        db 2Eh, 09h
+   259 000000FA A6A2A3A5A7A3A2A6            db 0A6h, 0A2h, 0A3h, 0A5h, 0A7h, 0A3h, 0A2h, 0A6h
+   260 00000102 24                          db 24h
+   261 00000103 00000000                    db 00h, 00h, 00h, 00h
+   262 00000107 14                          db 14h
+   263 00000108 9692939597939296            db 96h, 92h, 93h, 95h, 97h, 93h, 92h, 96h
+   264                                  
+   265                                  board_db:
