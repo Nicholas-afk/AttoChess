@@ -1,0 +1,1 @@
+Statistics { elim-unconstrained: 2, conflicts: 14, decisions: 18, propagations: 228, mk clause: 200, del clause: 8, num checks: 1, mk bool var: 65, num allocs: 232357134, rlimit count: 470097, max memory: 58.63, memory: 48.74 }

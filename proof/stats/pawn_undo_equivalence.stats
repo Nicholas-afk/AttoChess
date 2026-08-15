@@ -1,0 +1,1 @@
+Statistics { conflicts: 6, decisions: 80, propagations: 41, added eqs: 40, mk clause: 201, del clause: 95, num checks: 1, mk bool var: 189, arith-make-feasible: 1, arith-max-columns: 4, array ax1: 3, array ax2: 3, array ext ax: 1, bv dynamic diseqs: 5, bv bit2core: 33, bv->core eq: 9, num allocs: 4915185, rlimit count: 5649, max memory: 34.7, memory: 34.1 }

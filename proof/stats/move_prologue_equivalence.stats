@@ -1,0 +1,1 @@
+Statistics { elim-unconstrained: 3, conflicts: 3, decisions: 2, propagations: 12, added eqs: 12, mk clause: 13, num checks: 1, mk bool var: 85, arith-make-feasible: 1, arith-max-columns: 4, array ax1: 1, array ax2: 1, array ext ax: 1, bv bit2core: 24, num allocs: 81725, rlimit count: 902, max memory: 34.37, memory: 33.88, time: 0.001 }
