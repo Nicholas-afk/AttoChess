@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0D0B08">
-<title>AttoChess: a 276-byte chess program for 16-bit x86 DOS</title>
-<meta name="description" content="AttoChess is a complete, playable chess program for 16-bit x86 DOS in 276 bytes. Play it in the browser, read the source, and reproduce the byte count.">
+<title>AttoChess: a 272-byte chess program for 16-bit x86 DOS</title>
+<meta name="description" content="AttoChess is a complete, playable chess program for 16-bit x86 DOS in 272 bytes. Play it in the browser, read the source, and replay the proof evidence.">
 
 <script src="coi-serviceworker.js"></script>
 
@@ -528,9 +528,9 @@ footer{ padding:clamp(3rem,6vw,4rem) 0 3.5rem; }
 
 <header class="masthead">
   <div class="wrap">
-    <p class="masthead__tag">Smallest working chess engine &middot; <b>record: 276 bytes</b></p>
+    <p class="masthead__tag">Proof-carrying sizecoding &middot; <b>record: 272 bytes</b></p>
     <h1 class="title">AttoChess</h1>
-    <p class="summary">A complete, playable chess program for 16-bit x86 DOS in 276 bytes. It draws the board, reads a move from the keyboard, searches four plies deep, and replies, and that is the whole file.</p>
+    <p class="summary">A complete, playable chess program for 16-bit x86 DOS in 272 bytes. It draws the board, reads a move, searches four plies deep, and replies—and that is the whole file.</p>
 
     <p class="masthead__cta">
       <a class="ghlink" href="https://github.com/Nicholas-afk/AttoChess">
@@ -538,10 +538,14 @@ footer{ padding:clamp(3rem,6vw,4rem) 0 3.5rem; }
         <span>View source on GitHub</span>
         <span class="ghlink__arrow" aria-hidden="true">&rarr;</span>
       </a>
+      <a class="ghlink" href="https://github.com/Nicholas-afk/AttoChess/raw/main/ATTOCHES.COM">
+        <span>Download the 272-byte COM</span>
+        <span class="ghlink__arrow" aria-hidden="true">&darr;</span>
+      </a>
     </p>
 
     <dl class="specs">
-      <div class="spec"><dt>Size</dt><dd>276 bytes</dd></div>
+      <div class="spec"><dt>Size</dt><dd>272 bytes</dd></div>
       <div class="spec"><dt>Target</dt><dd>x86 DOS .COM</dd></div>
       <div class="spec"><dt>Search</dt><dd>4-ply</dd></div>
       <div class="spec"><dt>License</dt><dd class="plain">MIT</dd></div>
@@ -557,7 +561,7 @@ footer{ padding:clamp(3rem,6vw,4rem) 0 3.5rem; }
   <div class="wrap">
     <h2><span class="idx">01</span>Lineage</h2>
     <div class="prose">
-      <p>AttoChess is a size-optimized descendant of LeanChess. Same game, same environment, same 0x88-style board and recursive minimax search, but it assembles to 276 bytes. That is twelve bytes under the 288-byte program that previously held the record for the smallest working chess engine.</p>
+      <p>AttoChess is a size-optimized descendant of LeanChess. Same game, same environment, same padded board and recursive material search, but it assembles to 272 bytes. That is sixteen bytes under the 288-byte program that previously held the record for the smallest working chess engine.</p>
     </div>
 
     <div class="lineage">
@@ -595,10 +599,10 @@ footer{ padding:clamp(3rem,6vw,4rem) 0 3.5rem; }
 
       <div class="entry is-record">
         <div class="entry__head">
-          <span class="entry__name">AttoChess <span class="entry__bytes">276 bytes</span></span>
+          <span class="entry__name">AttoChess <span class="entry__bytes">272 bytes</span></span>
           <span class="entry__meta">2026 &middot; Nicholas Tanner &middot; x86 DOS (.COM)</span>
         </div>
-        <div class="bar"><span style="width:41.1%"></span></div>
+        <div class="bar"><span style="width:40.5%"></span></div>
       </div>
     </div>
 
@@ -606,7 +610,7 @@ footer{ padding:clamp(3rem,6vw,4rem) 0 3.5rem; }
 
     <div class="note">
       <span class="note__label">Note</span>
-      <p>AttoChess is not a byte-count stunt that only sets up a board. It boots, draws the position, reads your move from the keyboard, searches four plies of real recursion, replies with a legal move, and loops. The 276 bytes are the assembled size of all of that, measured on the produced <code>.COM</code>.</p>
+      <p>AttoChess is not a byte-count stunt that only sets up a board. It boots, draws the position, reads your move from the keyboard, searches four plies recursively, chooses a reply, and loops. The 272 bytes are the assembled size of all of that, measured on the produced <code>.COM</code>.</p>
     </div>
   </div>
 </section>
@@ -624,7 +628,7 @@ footer{ padding:clamp(3rem,6vw,4rem) 0 3.5rem; }
               <div class="grid" id="grid"></div>
               <div class="overlay" id="overlay">
                 <button class="btn" id="start" type="button">Start game</button>
-                <p>Loads the 276-byte program into an emulated DOS machine. You play White.</p>
+                <p>Loads the 272-byte program into an emulated DOS machine. You play White.</p>
               </div>
             </div>
             <div class="files" id="files"></div>
@@ -646,7 +650,7 @@ footer{ padding:clamp(3rem,6vw,4rem) 0 3.5rem; }
 
       <aside class="machine__guide">
         <h3>How it works</h3>
-        <p>Press <strong>Start game</strong> and the real 276-byte program boots in an emulated DOS machine, right here in the page. You play White, it plays Black.</p>
+        <p>Press <strong>Start game</strong> and the real 272-byte program boots in an emulated DOS machine, right here in the page. You play White, it plays Black.</p>
         <p>Type your move as four characters, the square you are moving <em>from</em> and the square <em>to</em>, like <code>e2e4</code>, then press Enter or <strong>Play move</strong>. Your piece moves at once. The engine searches four plies deep and answers a moment later, with both squares of its move highlighted.</p>
         <p>Everything is plain coordinates, so there is no click-to-move. Your input is trusted rather than checked, and castling, en passant, and promotion are not implemented. When the engine runs out of replies, the game is over.</p>
       </aside>
@@ -677,10 +681,10 @@ footer{ padding:clamp(3rem,6vw,4rem) 0 3.5rem; }
   <div class="wrap prose">
     <h2><span class="idx">04</span>Verifying the size</h2>
     <p>A size record you cannot reproduce is not worth much. Assemble the source and measure the output yourself:</p>
-<pre><code>tasm AttoChess
-tlink /t AttoChess        <span class="c">; /t produces a .COM, not an .EXE</span>
-ls -l AttoChess.com       <span class="c">; 276 bytes</span></code></pre>
-    <p>Nothing else is in that image. There is no data-section padding, no separate render buffer, and no board array reserved in the file. Every byte of <code>AttoChess.com</code> is code or table data the program actually uses.</p>
+<pre><code>nasm -f bin -w+error -o ATTOCHES.COM AttoChess.asm
+wc -c ATTOCHES.COM        <span class="c">; 272 bytes</span>
+shasum -a 256 ATTOCHES.COM</code></pre>
+    <p>The expected SHA-256 is <code>02b80d2b11ba3c6bea02b112e7009c318aac35b3e869f8bb823dc2aa6cdd6f8e</code>. Nothing else is in that image: every byte is code or table data the program actually uses.</p>
   </div>
 </section>
 
@@ -688,7 +692,7 @@ ls -l AttoChess.com       <span class="c">; 276 bytes</span></code></pre>
   <div class="wrap">
     <h2><span class="idx">05</span>Optimizations</h2>
     <div class="prose">
-      <p>The core search is unchanged from LeanChess. All twelve bytes come out of the two things around it, how the board is drawn and how your move is decoded, plus two changes inside the search loop: one frees a register, the other tightens the move-table addressing.</p>
+      <p>The 276-byte phase removed twelve bytes from LeanChess through display, input, depth-lifetime, pawn-direction, and addressing work. The current release adds four compositionally checked one-byte reductions. The final page-pointer rewrite depends on the new pawn undo freeing <code>BH</code>.</p>
     </div>
 
     <article class="opt prose">
@@ -697,7 +701,7 @@ ls -l AttoChess.com       <span class="c">; 276 bytes</span></code></pre>
       <p>This one saves the most. The original renders the position into a separate buffer: it walks the board, transforms each square into a printable character, stores it, appends a <code>$</code> terminator, and prints the whole string with DOS function <code>09h</code> (<code>int 21h</code>). That path costs a buffer pointer setup, the copy loop's store, the terminator write, and, because the buffer lives after the board, a reserved board array in the image.</p>
       <p>AttoChess drops all of it. The board's border columns are laid out as <code>CR, LF, CR, LF</code> (<code>0Dh, 0Ah, 0Dh, 0Ah</code>) rather than the <code>08h</code> filler LeanChess used. CR and LF both have bit 3 set, so every existing border/color mask test fires exactly as before, except now the raw board bytes are already a printable frame. The display loop streams each byte straight to the console with <code>int 29h</code> (DOS fast console output): borders become newlines, empty squares become NULs, and only real pieces take the ASCII transform.</p>
 <pre><code><span class="k">main_loop:</span>
-    mov si, offset board_db + 24   <span class="c">; row 2 (black back rank), col 0</span>
+    mov si, board_db + 24          <span class="c">; row 2 (black back rank), col 0</span>
     mov cl, 98                     <span class="c">; 8 rank rows + final CR,LF (CH=0)</span>
 <span class="k">disp_loop:</span>
     lodsb                          <span class="c">; read square contents</span>
@@ -729,7 +733,7 @@ ls -l AttoChess.com       <span class="c">; 276 bytes</span></code></pre>
       <p>AttoChess collapses the arithmetic by pre-folding the ASCII bias constants into the base address and letting 16-bit pointer math wrap around mod 64K. The normalization step and the separate multiply setup both disappear:</p>
 <pre><code><span class="k">read_sub:</span>
     mov bp, di
-    mov di, offset board_db + 123 + 0CE0h  <span class="c">; base pre-folds the ASCII offsets</span>
+    mov di, board_db + 123 + 0CE0h         <span class="c">; base pre-folds the ASCII offsets</span>
     mov ah, 01h
     int 21h                                <span class="c">; read file char</span>
     add di, ax                             <span class="c">; AX = 0100h + file char</span>
@@ -746,7 +750,7 @@ ls -l AttoChess.com       <span class="c">; 276 bytes</span></code></pre>
       <p>AttoChess walks the source squares by comparing the pointer against the end of the board instead:</p>
 <pre><code><span class="k">src_cont:</span>
     inc bp
-    cmp bp, offset board_db + 120  <span class="c">; past the last square?</span>
+    cmp bp, board_db + 120         <span class="c">; past the last square?</span>
     jnz src_loop</code></pre>
       <p>CX is never touched, so it stays the live depth counter for the whole scan. The recursive call site then just does <code>dec cx</code>, and the stack reload of depth is gone entirely.</p>
     </article>
@@ -783,30 +787,87 @@ ls -l AttoChess.com       <span class="c">; 276 bytes</span></code></pre>
       <p>Reading straight into BL means the index is already where the slider test later needs it, and the whole address computation collapses into a single <code>lea</code>:</p>
 <pre><code>    mov bl, [bp]
     and bx, 07h                         <span class="c">; also zeroes BH</span>
-    lea si, [bx + offset moves_knight - 2]
+    lea si, [bx + moves_knight - 2]
     lodsb
     cbw                                 <span class="c">; AH is no longer zeroed by the AND</span></code></pre>
       <p>There is one subtlety. The original <code>and ax, 07h</code> was doing double duty: it also cleared AH, so the following <code>add si, ax</code> treated the loaded byte as a 16-bit value. Masking BX leaves AH untouched, so a one-byte <code>cbw</code> has to restore that invariant. Net saving: 2 bytes.</p>
     </article>
+
+    <article class="opt prose">
+      <span class="opt__num">07 &middot; Prologue</span>
+      <h3>Test the source after exchanging it into AL</h3>
+      <p>The old routine compares <code>[BP]</code> to <code>CH</code> before clearing AX. Search depth is 0&ndash;4, so <code>CH=0</code>. Exchanging the source into <code>AL</code> first and testing that byte preserves the continuing state; an empty source receives an idempotent zero store before the same deliberate self-loop.</p>
+<pre><code><span class="c">; before</span>                  <span class="c">; after</span>
+cmp  [bp], ch             xor  ax, ax
+jz   $                    xchg al, [bp]
+xor  ax, ax               test al, al
+xchg al, [bp]             jz   $</code></pre>
+      <p>Encoded saving: one byte.</p>
+    </article>
+
+    <article class="opt prose">
+      <span class="opt__num">08 &middot; Pawn predicate</span>
+      <h3>Map occupancy and vector parity into PF</h3>
+      <p>The new predicate places destination occupancy in carry, rotates it beside vector parity, and tests the resulting two low bits. Parity is even exactly when occupancy agrees with diagonal/straight movement. <code>POP</code> restores AX without changing PF.</p>
+<pre><code>push ax
+and  ah, dl
+neg  ah
+rcl  al, 1
+test al, 3
+pop  ax
+jpo  vec_cont</code></pre>
+      <p>Because AH remains available for memory undo, <code>XCHG AH,[DI]</code> replaces the BH clone path and removes <code>MOV BH,AH</code>. Net saving: one byte.</p>
+    </article>
+
+    <article class="opt prose">
+      <span class="opt__num">09 &middot; Data overlap</span>
+      <h3>Make the king value initialize the hidden border</h3>
+      <p><code>eval_db[7]=2Eh</code> is also <code>init_db[0]</code>. The evaluation lookup is unchanged. In the hidden top border, both the old <code>09h</code> and new <code>2Eh</code> block both color masks, and those bytes are outside display, source scanning, and initializer self-feed reads. Saving: one byte.</p>
+    </article>
+
+    <article class="opt prose">
+      <span class="opt__num">10 &middot; Page addressing</span>
+      <h3>Keep the common vector page in BH</h3>
+      <p>The AH-based undo frees BH. Since evaluation data, metadata, and vectors all occupy runtime page <code>01xx</code>, <code>BH=01h</code> can remain live. Six absolute low-byte pointers move into the unreachable island after <code>RET</code>, permitting a disp8 rather than disp16 LEA:</p>
+<pre><code>and  bl, 07h
+lea  si, [byte bx + 53h]  <span class="c">; 8D 77 53</span>
+lodsb
+mov  ah, bh
+xchg ax, si</code></pre>
+      <p>The metadata bytes are <code>E4 EA E9 ED EF ED</code>, selecting full pointers <code>01E4h, 01EAh, 01E9h, 01EDh, 01EFh, 01EDh</code> for types 2&ndash;7. Saving: one byte. This reduction depends on the preceding pawn/undo rewrite.</p>
+    </article>
+  </div>
+</section>
+
+<section id="proof">
+  <div class="wrap prose">
+    <h2><span class="idx">06</span>Verification evidence</h2>
+    <p>The exact 272-byte artifact is accompanied by eight standalone SMT-LIB mismatch queries. Z3 4.16 returned <strong>UNSAT</strong> for every obligation: the move prologue, pawn predicate, recursive-call dead inputs, memory undo, contextual live projection, table overlap, pointer metadata, and rejected-path state.</p>
+    <p>Binary audits also verify exact 80186 instruction boundaries, byte-identical re-encoding, the two executable spans, exclusion of control flow from the metadata island, <code>BH=01h</code> dominance across nested <code>PUSHA</code>/<code>POPA</code>, and AH/BH read-before-kill on all three reject paths.</p>
+    <p>An independent Unicorn 2.1.4 harness compared complete modeled DOS event traces and relocated board state across all 20 legal openings plus three two-turn sequences. All 23 passed; the canonical report SHA-256 is <code>ab632e7a55ed9ce43f26dae4803080e17c0b625b072a7fa23976f30b537b59f3</code>.</p>
+    <p><a href="https://github.com/Nicholas-afk/AttoChess/tree/main/proof">Replay the exact queries and inspect the native proof output on GitHub</a>.</p>
+    <div class="note">
+      <span class="note__label">Scope</span>
+      <p>The formulas establish their stated local and contextual contracts. They do not prove global minimality among every x86 byte string or a mechanically composed unbounded whole-program bisimulation. The contextual pawn theorem uses equal recursive score as an explicit composition hypothesis.</p>
+    </div>
   </div>
 </section>
 
 <section id="build">
   <div class="wrap prose">
-    <h2><span class="idx">06</span>Building and running</h2>
-    <p>AttoChess is written in MASM/TASM syntax targeting the 80186.</p>
+    <h2><span class="idx">07</span>Building and running</h2>
+    <p>AttoChess is written in NASM syntax targeting the 80186.</p>
 
-    <h3>Assemble with TASM (Turbo Assembler)</h3>
-<pre><code>tasm AttoChess
-tlink /t AttoChess        <span class="c">; /t produces a .COM, not an .EXE</span></code></pre>
-    <p>This yields <code>AttoChess.com</code>, a 276-byte DOS executable.</p>
+    <h3>Assemble with NASM</h3>
+<pre><code>nasm -f bin -w+error -o ATTOCHES.COM AttoChess.asm</code></pre>
+    <p>This yields <code>ATTOCHES.COM</code>, a 272-byte DOS executable.</p>
 
     <h3>Run under DOSBox</h3>
 <pre><code>dosbox</code></pre>
     <p>Then, at the DOSBox prompt:</p>
 <pre><code>mount c: .
 c:
-AttoChess.com</code></pre>
+ATTOCHES.COM</code></pre>
     <p>Any real or emulated 16-bit DOS environment works (DOSBox, PCem, 86Box, or actual hardware), since the program uses only standard DOS <code>int 21h</code>/<code>int 29h</code> calls.</p>
 
     <h3>Playing</h3>
@@ -816,7 +877,7 @@ AttoChess.com</code></pre>
 
 <section id="scope">
   <div class="wrap prose">
-    <h2><span class="idx">07</span>Scope and limitations</h2>
+    <h2><span class="idx">08</span>Scope and limitations</h2>
     <p>AttoChess inherits its rule set from the program it was golfed from. What that means in practice:</p>
     <ul>
       <li>It plays standard piece movement and captures with a real recursive search.</li>
@@ -829,7 +890,7 @@ AttoChess.com</code></pre>
 
 <footer>
   <div class="wrap prose">
-    <h2><span class="idx">08</span>License and credits</h2>
+    <h2><span class="idx">09</span>License and credits</h2>
     <p>MIT License. Copyright &copy; 2026 Nicholas Tanner (AttoChess). Copyright &copy; 2019 Dmitry Shechtman (LeanChess).</p>
     <p>AttoChess is a derivative work and retains Dmitry Shechtman's original copyright notice and MIT license in full at the top of <code>AttoChess.asm</code>, as the license requires. Please keep it there.</p>
 
@@ -841,7 +902,7 @@ AttoChess.com</code></pre>
       <p><strong><a href="https://github.com/peterferrie">Peter Ferrie</a></strong>, the BX/<code>lea</code> rewrite of the move-table addressing in the source loop, worth 2 bytes.</p>
     </div>
 
-    <p class="colophon">276 bytes &middot; 80186 &middot; MIT &middot; emulation by js-dos v8</p>
+    <p class="colophon">272 bytes &middot; 80186 &middot; MIT &middot; emulation by js-dos v8</p>
   </div>
 </footer>
 
