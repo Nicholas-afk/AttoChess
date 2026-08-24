@@ -1,6 +1,7 @@
 # AttoChess
 
-**A complete, playable 16-bit x86 DOS chess program in 272 bytes.**
+**AttoChess is the world's smallest x86 chess program: a complete, playable
+16-bit DOS chess engine in 272 bytes with a real four-ply search.**
 
 AttoChess is a size-optimized descendant of Dmitry Shechtman's
 [LeanChess](https://github.com/leanchess/leanchess.github.io). It initializes
@@ -17,17 +18,21 @@ code and tables—is 272 bytes.
 | 1K ZX Chess | 672 | 1982 | David Horne | Sinclair ZX81 |
 | BootChess | 487 | 2015 | Olivier Poudade | x86 boot sector |
 | Toledo Atomchess | 352 | 2015 | Óscar Toledo G. | x86 DOS `.COM` |
+| Toledo Atomchess, HACK build | 326 | 2019 | Óscar Toledo G. | x86 DOS `.COM` |
 | LeanChess | 288 | 2019 | Dmitry Shechtman | x86 DOS `.COM` |
 | AttoChess, previous release | 276 | 2026 | Nicholas Tanner | x86 DOS `.COM` |
 | **AttoChess, current release** | **272** | **2026** | **Nicholas Tanner** | **x86 DOS `.COM`** |
 
 The current build is 16 bytes below LeanChess and four bytes below the previous
-AttoChess release.
+AttoChess release. Toledo Atomchess is listed twice because its 352-byte form is
+the one usually cited, while its stripped HACK build from December 2019 reached
+326 and is the smallest size it ever attained on x86.
 
 ## Reproduce the 272-byte image
 
 The current source uses NASM syntax and targets the Intel 80186 instruction
-set. NASM 3.02 was used for the release build.
+set. NASM 3.02 produced the release build, and the image is byte-identical
+under NASM 2.16.01.
 
 ```sh
 nasm -f bin -w+error -o ATTOCHES.COM AttoChess.asm
@@ -219,7 +224,8 @@ reduced chess engine, not a FIDE-complete engine.
 - **Dmitry Shechtman**, [LeanChess](https://github.com/leanchess/leanchess.github.io),
   the 288-byte program from which AttoChess is derived.
 - **Óscar Toledo G.**, [Toledo Atomchess](https://github.com/nanochess/Toledo-Atomchess),
-  the earlier DOS `.COM` record holder.
+  the earlier DOS `.COM` record holder, 352 bytes in its usual form and 326 in
+  the December 2019 HACK build.
 - **Olivier Poudade**, [BootChess](http://olivier.poudade.free.fr/), the
   487-byte boot-sector ancestor.
 - **David Horne**, 1K ZX Chess (1982), the 672-byte starting point.
