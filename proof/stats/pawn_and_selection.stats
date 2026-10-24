@@ -1,0 +1,13 @@
+(:conflicts    8
+ :decisions    11
+ :del-clause   2
+ :max-memory   17.34
+ :memory       17.07
+ :mk-bool-var  53
+ :mk-clause    236
+ :num-allocs   31215
+ :num-checks   1
+ :propagations 191
+ :rlimit-count 1774
+ :sat-mk-var   1
+ :total-time   0.00)

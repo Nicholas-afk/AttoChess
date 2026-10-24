@@ -1,5 +1,5 @@
 ; ============================================================================
-;  AttoChess optimized candidate.
+;  AttoChess, 272-byte DOS chess program.
 ;
 ;  Copyright (c) 2026 Nicholas Tanner
 ;
@@ -27,10 +27,12 @@
 ; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ; SOFTWARE.
 ;
-; AttoChess 272-byte candidate, NASM syntax.
+; AttoChess 272-byte release, NASM syntax.
 ;
 ; Derived from the fingerprinted 276-byte AttoChess distribution artifact.
-; It contains four compositionally checked one-byte reductions.
+; The original four reductions are documented below. Search now starts at
+; -128 rather than zero, accepting losing replies. Removing the redundant
+; AND AH,DL after the destination guard pays for the two-byte initializer.
 ;
 ; (1) The move prologue exchanges zero into the source before testing the
 ;     resulting AL. On the nonempty path this is identical to the source;
@@ -38,7 +40,8 @@
 ;     infinite loop. Reusing AL makes the three-byte memory CMP unnecessary.
 ;
 ; (2) The pawn predicate is occupancy == vector-parity. AND/NEG obtains the
-;     occupancy bit in CF; RCL maps occupancy and vector parity into AL bits
+;     occupancy bit in CF (the guarded NEG alone now suffices); RCL maps
+;     occupancy and vector parity into AL bits
 ;     0 and 1; TEST makes PF true iff those bits agree. PUSH/POP restores the
 ;     original AX while preserving PF. AH therefore remains available for
 ;     undo, eliminating the old destination clone in BH.
@@ -149,6 +152,7 @@ move_sub:
     jcxz sub_ret
 
 next:
+    mov ah, 80h                    ; Accept the best reply even when losing.
     pusha
     mov bp, board_db + 28
 
@@ -194,7 +198,8 @@ pawn:
 
     ; Preserve AX while mapping occupancy and vector parity to two low bits.
     push ax
-    and ah, dl
+    ; The destination guard rejected friendly pieces and borders.
+    ; Among remaining board cells, nonzero means an enemy piece.
     neg ah
     rcl al, 1
     test al, 3
