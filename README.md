@@ -39,8 +39,8 @@ Expected output:
 
 ```text
 272 ATTOCHES.COM
-2dda33f61b4d1665f01138cbaf78f79636eabd71017abbc77efdaac13e807400  AttoChess.asm
-02b80d2b11ba3c6bea02b112e7009c318aac35b3e869f8bb823dc2aa6cdd6f8e  ATTOCHES.COM
+f35cd48d7621ff73ec1013d17e9b216bf5564e47efd43691cc6a35dd1c15e5bc  AttoChess.asm
+1e395c1e523f900674add7e86639f248c4658678f08c85b0d6bb2652f5657003  ATTOCHES.COM
 ```
 
 The checked-in [NASM listing](AttoChess.lst) and
@@ -65,13 +65,16 @@ destination square:
 e2e4
 ```
 
-The computer calculates Black's reply and redraws the board.
+The computer calculates Black's reply and redraws the board. Search starts
+with a best score of -128, so it keeps playing when every reply loses material.
+The two-byte initializer is offset by removing a redundant pawn occupancy
+mask; the executable remains 272 bytes.
 
-## The four new bytes
+## Size reductions
 
-The 272-byte release adds four compositionally checked one-byte reductions to
-the 276-byte program. The fourth depends on the second freeing `BH`; these are
-not four unrelated patches.
+The original 272-byte build combined four one-byte reductions to the 276-byte
+program. The fourth depends on the second freeing `BH`. The current build
+reuses two pawn-predicate bytes for the losing-reply initializer.
 
 ### 1. Test the exchanged source — minus one byte
 
@@ -103,7 +106,6 @@ parity, and lets `TEST` set `PF` exactly when the two bits agree:
 
 ```asm
 push ax
-and  ah, dl
 neg  ah
 rcl  al, 1
 test al, 3
@@ -113,7 +115,9 @@ jpo  vec_cont
 
 `POP` restores `AX` without changing flags. This leaves the captured byte in
 `AH`, so undo can use `XCHG AH,[DI]` and the old two-byte `MOV BH,AH` clone
-disappears. The predicate grows by one byte while the clone loses two.
+disappears. The earlier destination guard already rejects friendly pieces and
+borders, so any remaining nonzero cell is an enemy piece. `NEG` alone sets the
+occupancy carry; the original `AND AH,DL` is unnecessary.
 
 ### 3. Overlap evaluation and initialization data — minus one byte
 
@@ -168,39 +172,21 @@ that version in its original MASM/TASM form.
 
 ## Verification and proof scope
 
-The release is accompanied by eight standalone SMT-LIB queries. Each was
-replayed with Z3 4.16.0 and returned `UNSAT`:
+The current build includes a replayable Z3 query for the shortened pawn
+predicate and the -128 selection floor, plus a Unicorn regression report.
+The query returns `UNSAT` under Z3 4.16.0. All 23 opening/two-turn sequences
+match a straightforward 274-byte control with the same selection fix, and
+100 synthetic positions at depth 3 match in scores and selected moves.
 
-1. `move_prologue_equivalence`
-2. `pawn_predicate_equivalence`
-3. `pawn_recursive_dead_inputs`
-4. `pawn_undo_equivalence`
-5. `pawn_contextual_equivalence`
-6. `table_overlap_equivalence`
-7. `pointer_metadata_equivalence`
-8. `rejected_clone_deadness`
+A regression fixture reproduces the old stop after `b5a5` in
+`7k/p7/8/1Q6/8/8/8/7K w - - 0 1`; the current build plays `a7a6` and
+returns to input. The full game-flow tests retain the normal four-ply search.
 
-The proof directory contains the exact queries, native Z3 proof expressions,
-solver statistics, and the canonical Unicorn differential report. Structural
-audits additionally verify exact instruction boundaries, lossless
-decode/re-encode, the metadata island, `BH=01h` dominance across nested
-`PUSHA`/`POPA`, and rejected-path `AH`/`BH` deadness.
-
-The independent Unicorn 2.1.4 harness compared complete modeled DOS event
-traces and relocated board state for all 20 legal opening moves plus three
-two-turn sequences. All 23 passed. The report SHA-256 is:
-
-```text
-ab632e7a55ed9ce43f26dae4803080e17c0b625b072a7fa23976f30b537b59f3
-```
-
-This evidence establishes the local and contextual contracts stated by the
-queries for the exact fingerprinted artifact. It does **not** prove that 272
-bytes is globally minimal among every possible x86 program, nor does it form a
-mechanically composed unbounded whole-program bisimulation. In particular,
-the contextual pawn query treats equal recursive score as an explicit
-composition hypothesis. See [`proof/README.md`](proof/README.md) for the full
-boundary and replay instructions.
+The previous build's eight queries and differential report remain available
+as historical evidence. They do not certify the changed search behavior.
+See [`proof/README.md`](proof/README.md) for exact fingerprints, replay commands,
+assumptions, and the boundary of both sets of evidence. Neither set proves
+whole-program correctness or global byte minimality.
 
 ## Rules and limitations
 
@@ -209,7 +195,7 @@ AttoChess follows the deliberately reduced rules of its sizecoding lineage:
 - standard piece movement and captures with a real recursive material search;
 - no castling, en passant, promotion, or full check/checkmate adjudication;
 - trusted coordinate input rather than a complete move validator; and
-- deliberate stopping when no move satisfies the engine's score condition.
+- deliberate stopping when no move is generated.
 
 These constraints matter when comparing byte counts. AttoChess is a playable
 reduced chess engine, not a FIDE-complete engine.

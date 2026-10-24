@@ -1,0 +1,1143 @@
+{
+  "candidate_bytes": 272,
+  "candidate_sha256": "1e395c1e523f900674add7e86639f248c4658678f08c85b0d6bb2652f5657003",
+  "control_bytes": 274,
+  "control_comparisons": [
+    "a2a3",
+    "a2a4",
+    "b2b3",
+    "b2b4",
+    "c2c3",
+    "c2c4",
+    "d2d3",
+    "d2d4",
+    "e2e3",
+    "e2e4",
+    "f2f3",
+    "f2f4",
+    "g2g3",
+    "g2g4",
+    "h2h3",
+    "h2h4",
+    "b1a3",
+    "b1c3",
+    "g1f3",
+    "g1h3",
+    "e2e4g1f3",
+    "d2d4c2c4",
+    "b1c3e2e3"
+  ],
+  "emulator": "2.1.4",
+  "limitations": [
+    "Synthetic positions obey the board alphabet, not full FIDE legality.",
+    "The control compares the pawn optimization, not old/new search equivalence.",
+    "Unicorn models DOS I/O with register preservation.",
+    "No claim of increased playing strength or full chess legality.",
+    "Original release proof evidence does not certify the changed search."
+  ],
+  "original_sha256": "02b80d2b11ba3c6bea02b112e7009c318aac35b3e869f8bb823dc2aa6cdd6f8e",
+  "passed": true,
+  "pawn_predicate_cases": 3584,
+  "resignation_regression": {
+    "candidate_best_score": -1,
+    "candidate_move": "a7a6",
+    "candidate_reaches_next_input": true,
+    "fen_before": "7k/p7/8/1Q6/8/8/8/7K w - - 0 1",
+    "human_move": "b5a5",
+    "original_stops_at": "0x162"
+  },
+  "source_rebuild_identical": true,
+  "synthetic_depth": 3,
+  "synthetic_positions": [
+    {
+      "best_score": 46,
+      "generated_moves": 31,
+      "pieces": {
+        "c6": "q",
+        "c8": "r",
+        "e4": "K",
+        "f4": "N",
+        "f8": "k"
+      },
+      "selected": "c6e4"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 11,
+      "pieces": {
+        "b1": "n",
+        "c2": "k",
+        "d6": "B",
+        "d8": "K",
+        "h5": "p"
+      },
+      "selected": "b1c3"
+    },
+    {
+      "best_score": 46,
+      "generated_moves": 34,
+      "pieces": {
+        "b4": "K",
+        "c4": "k",
+        "c8": "Q",
+        "f3": "b",
+        "g2": "q"
+      },
+      "selected": "c4b4"
+    },
+    {
+      "best_score": 3,
+      "generated_moves": 29,
+      "pieces": {
+        "a4": "B",
+        "f5": "q",
+        "g8": "K",
+        "h3": "k"
+      },
+      "selected": "f5g4"
+    },
+    {
+      "best_score": 3,
+      "generated_moves": 9,
+      "pieces": {
+        "a4": "K",
+        "b8": "k",
+        "e5": "B",
+        "h2": "b"
+      },
+      "selected": "h2e5"
+    },
+    {
+      "best_score": 46,
+      "generated_moves": 25,
+      "pieces": {
+        "a3": "K",
+        "c4": "k",
+        "c6": "P",
+        "d3": "r",
+        "g2": "n",
+        "h7": "N"
+      },
+      "selected": "d3a3"
+    },
+    {
+      "best_score": 3,
+      "generated_moves": 20,
+      "pieces": {
+        "d1": "K",
+        "d5": "N",
+        "e5": "b",
+        "e6": "k"
+      },
+      "selected": "e6d5"
+    },
+    {
+      "best_score": 3,
+      "generated_moves": 8,
+      "pieces": {
+        "a3": "K",
+        "g4": "N",
+        "g5": "k"
+      },
+      "selected": "g5g4"
+    },
+    {
+      "best_score": 46,
+      "generated_moves": 54,
+      "pieces": {
+        "b2": "q",
+        "b6": "q",
+        "b8": "Q",
+        "c7": "b",
+        "e4": "k",
+        "f5": "K"
+      },
+      "selected": "e4f5"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 8,
+      "pieces": {
+        "c3": "K",
+        "e3": "k"
+      },
+      "selected": "e3d3"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 14,
+      "pieces": {
+        "a7": "k",
+        "a8": "n",
+        "d7": "K",
+        "f2": "b"
+      },
+      "selected": "f2b6"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 8,
+      "pieces": {
+        "a4": "K",
+        "f3": "N",
+        "g5": "k"
+      },
+      "selected": "g5f5"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 8,
+      "pieces": {
+        "e4": "Q",
+        "g3": "k",
+        "h5": "K",
+        "h7": "P"
+      },
+      "selected": "g3f3"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 22,
+      "pieces": {
+        "d1": "r",
+        "e5": "K",
+        "g7": "k"
+      },
+      "selected": "d1a1"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 11,
+      "pieces": {
+        "a1": "k",
+        "b8": "K",
+        "f4": "n"
+      },
+      "selected": "a1b1"
+    },
+    {
+      "best_score": 37,
+      "generated_moves": 71,
+      "pieces": {
+        "c2": "r",
+        "d8": "k",
+        "e4": "q",
+        "g3": "b",
+        "g6": "K",
+        "h5": "q"
+      },
+      "selected": "e4e5"
+    },
+    {
+      "best_score": 46,
+      "generated_moves": 17,
+      "pieces": {
+        "b1": "K",
+        "c1": "B",
+        "c2": "k",
+        "f2": "b"
+      },
+      "selected": "c2b1"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 8,
+      "pieces": {
+        "a4": "N",
+        "d5": "k",
+        "g6": "K"
+      },
+      "selected": "d5c5"
+    },
+    {
+      "best_score": 1,
+      "generated_moves": 29,
+      "pieces": {
+        "b5": "K",
+        "d3": "P",
+        "f5": "k",
+        "h6": "q"
+      },
+      "selected": "h6d6"
+    },
+    {
+      "best_score": 47,
+      "generated_moves": 35,
+      "pieces": {
+        "b7": "P",
+        "c7": "q",
+        "e8": "k",
+        "f8": "K",
+        "g2": "b"
+      },
+      "selected": "e8f8"
+    },
+    {
+      "best_score": 46,
+      "generated_moves": 22,
+      "pieces": {
+        "a6": "Q",
+        "d4": "k",
+        "g1": "q",
+        "g5": "K"
+      },
+      "selected": "g1g5"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 5,
+      "pieces": {
+        "b8": "k",
+        "g3": "N",
+        "h8": "K"
+      },
+      "selected": "b8a8"
+    },
+    {
+      "best_score": 3,
+      "generated_moves": 10,
+      "pieces": {
+        "a1": "k",
+        "a6": "b",
+        "b1": "N",
+        "b4": "K"
+      },
+      "selected": "a1b1"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 4,
+      "pieces": {
+        "a1": "k",
+        "b8": "R",
+        "e8": "p",
+        "f2": "Q",
+        "g2": "K"
+      },
+      "selected": "e8e7"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 8,
+      "pieces": {
+        "b1": "K",
+        "d7": "k"
+      },
+      "selected": "d7c7"
+    },
+    {
+      "best_score": 3,
+      "generated_moves": 19,
+      "pieces": {
+        "b7": "k",
+        "c1": "K",
+        "e4": "r",
+        "e5": "N"
+      },
+      "selected": "e4e5"
+    },
+    {
+      "best_score": 5,
+      "generated_moves": 49,
+      "pieces": {
+        "b1": "R",
+        "b6": "k",
+        "c5": "q",
+        "d2": "K",
+        "d6": "R",
+        "g8": "q"
+      },
+      "selected": "c5d6"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 48,
+      "pieces": {
+        "a3": "r",
+        "e2": "k",
+        "e7": "b",
+        "g3": "q",
+        "g6": "K"
+      },
+      "selected": "e2d2"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 8,
+      "pieces": {
+        "b7": "Q",
+        "e7": "k",
+        "g7": "K"
+      },
+      "selected": "e7d7"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 12,
+      "pieces": {
+        "b1": "K",
+        "b5": "b",
+        "h1": "k"
+      },
+      "selected": "h1g1"
+    },
+    {
+      "best_score": 46,
+      "generated_moves": 5,
+      "pieces": {
+        "e7": "Q",
+        "g8": "k",
+        "h7": "K"
+      },
+      "selected": "g8g7"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 13,
+      "pieces": {
+        "d6": "n",
+        "g1": "k",
+        "h1": "K"
+      },
+      "selected": "g1f1"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 8,
+      "pieces": {
+        "d3": "R",
+        "e8": "K",
+        "f2": "k"
+      },
+      "selected": "f2e2"
+    },
+    {
+      "best_score": 46,
+      "generated_moves": 22,
+      "pieces": {
+        "a3": "b",
+        "e3": "b",
+        "f3": "K",
+        "f4": "k",
+        "g4": "R"
+      },
+      "selected": "f4f3"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 15,
+      "pieces": {
+        "a6": "Q",
+        "f3": "n",
+        "g3": "k",
+        "g4": "K",
+        "g8": "Q"
+      },
+      "selected": "g3g4"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 27,
+      "pieces": {
+        "a3": "k",
+        "c6": "K",
+        "f3": "q"
+      },
+      "selected": "f3b3"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 3,
+      "pieces": {
+        "b4": "N",
+        "b5": "K",
+        "c1": "B",
+        "h6": "N",
+        "h8": "k"
+      },
+      "selected": "h8g8"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 24,
+      "pieces": {
+        "a6": "k",
+        "d1": "p",
+        "e5": "K",
+        "g8": "n",
+        "h5": "q"
+      },
+      "selected": "h5g5"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 15,
+      "pieces": {
+        "c5": "k",
+        "d1": "b",
+        "f6": "K",
+        "g1": "p"
+      },
+      "selected": "d1a4"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 5,
+      "pieces": {
+        "f1": "k",
+        "g7": "N",
+        "h8": "K"
+      },
+      "selected": "f1e1"
+    },
+    {
+      "best_score": 5,
+      "generated_moves": 12,
+      "pieces": {
+        "b7": "b",
+        "c3": "k",
+        "c6": "p",
+        "d7": "R",
+        "f8": "K",
+        "g4": "R"
+      },
+      "selected": "b7c8"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 11,
+      "pieces": {
+        "b1": "n",
+        "c6": "K",
+        "d4": "k",
+        "g7": "P"
+      },
+      "selected": "b1a3"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 22,
+      "pieces": {
+        "a2": "r",
+        "d5": "K",
+        "f6": "k"
+      },
+      "selected": "a2h2"
+    },
+    {
+      "best_score": 3,
+      "generated_moves": 32,
+      "pieces": {
+        "a5": "r",
+        "c1": "K",
+        "d5": "p",
+        "e7": "r",
+        "f5": "N",
+        "g5": "k"
+      },
+      "selected": "g5f5"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 14,
+      "pieces": {
+        "a8": "K",
+        "b5": "b",
+        "h7": "k"
+      },
+      "selected": "b5a6"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 5,
+      "pieces": {
+        "a2": "K",
+        "a5": "k"
+      },
+      "selected": "a5b5"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 28,
+      "pieces": {
+        "a1": "b",
+        "a8": "k",
+        "c8": "b",
+        "f6": "r",
+        "f8": "K"
+      },
+      "selected": "a1e5"
+    },
+    {
+      "best_score": 1,
+      "generated_moves": 5,
+      "pieces": {
+        "c2": "R",
+        "e8": "P",
+        "f4": "K",
+        "f8": "k"
+      },
+      "selected": "f8e8"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 8,
+      "pieces": {
+        "c4": "k",
+        "g6": "K"
+      },
+      "selected": "c4b4"
+    },
+    {
+      "best_score": -3,
+      "generated_moves": 8,
+      "pieces": {
+        "b1": "n",
+        "c2": "K",
+        "d8": "k",
+        "e3": "R",
+        "h2": "Q"
+      },
+      "selected": "b1a3"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 8,
+      "pieces": {
+        "c7": "K",
+        "d4": "k"
+      },
+      "selected": "d4c4"
+    },
+    {
+      "best_score": 47,
+      "generated_moves": 18,
+      "pieces": {
+        "d1": "P",
+        "d2": "k",
+        "e4": "K",
+        "g8": "Q",
+        "h4": "r"
+      },
+      "selected": "h4e4"
+    },
+    {
+      "best_score": 9,
+      "generated_moves": 24,
+      "pieces": {
+        "a7": "n",
+        "c5": "Q",
+        "c6": "k",
+        "e3": "r",
+        "h6": "K"
+      },
+      "selected": "c6c5"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 7,
+      "pieces": {
+        "c5": "k",
+        "c6": "p",
+        "d4": "K"
+      },
+      "selected": "c5b5"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 24,
+      "pieces": {
+        "a8": "k",
+        "d3": "K",
+        "d8": "R",
+        "g2": "Q",
+        "h5": "q"
+      },
+      "selected": "h5b5"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 8,
+      "pieces": {
+        "a7": "K",
+        "f7": "k"
+      },
+      "selected": "f7e7"
+    },
+    {
+      "best_score": 5,
+      "generated_moves": 23,
+      "pieces": {
+        "b4": "b",
+        "d2": "R",
+        "d3": "k",
+        "d7": "K",
+        "e1": "Q",
+        "f4": "n"
+      },
+      "selected": "d3c4"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 8,
+      "pieces": {
+        "d2": "K",
+        "f3": "k"
+      },
+      "selected": "f3e3"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 14,
+      "pieces": {
+        "a1": "k",
+        "b4": "K",
+        "f3": "b",
+        "f4": "Q"
+      },
+      "selected": "f3a8"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 40,
+      "pieces": {
+        "c7": "K",
+        "e3": "q",
+        "f6": "n",
+        "g7": "k"
+      },
+      "selected": "e3a3"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 22,
+      "pieces": {
+        "b4": "k",
+        "d4": "b",
+        "e6": "p",
+        "g3": "B",
+        "g8": "Q",
+        "h5": "K"
+      },
+      "selected": "e6e5"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 5,
+      "pieces": {
+        "d1": "k",
+        "f6": "K"
+      },
+      "selected": "d1c1"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 26,
+      "pieces": {
+        "a5": "q",
+        "f4": "K",
+        "h7": "k"
+      },
+      "selected": "a5h5"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 21,
+      "pieces": {
+        "d7": "n",
+        "f2": "K",
+        "g2": "k",
+        "h5": "b"
+      },
+      "selected": "g2h2"
+    },
+    {
+      "best_score": 46,
+      "generated_moves": 19,
+      "pieces": {
+        "c1": "N",
+        "d1": "K",
+        "d4": "r",
+        "f4": "k"
+      },
+      "selected": "d4d1"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 5,
+      "pieces": {
+        "c1": "k",
+        "e2": "N",
+        "f6": "K"
+      },
+      "selected": "c1b1"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 8,
+      "pieces": {
+        "e5": "K",
+        "e7": "k"
+      },
+      "selected": "e7d7"
+    },
+    {
+      "best_score": -1,
+      "generated_moves": 8,
+      "pieces": {
+        "b7": "k",
+        "d2": "K",
+        "d3": "p"
+      },
+      "selected": "b7a7"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 8,
+      "pieces": {
+        "a6": "B",
+        "g4": "k",
+        "h6": "K"
+      },
+      "selected": "g4f4"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 5,
+      "pieces": {
+        "c8": "k",
+        "h1": "K",
+        "h3": "R"
+      },
+      "selected": "c8b8"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 26,
+      "pieces": {
+        "a1": "b",
+        "c6": "k",
+        "d5": "p",
+        "e2": "K",
+        "g6": "r"
+      },
+      "selected": "a1h8"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 10,
+      "pieces": {
+        "b7": "K",
+        "e1": "k",
+        "e2": "n"
+      },
+      "selected": "e1d1"
+    },
+    {
+      "best_score": 46,
+      "generated_moves": 8,
+      "pieces": {
+        "f7": "k",
+        "h7": "K"
+      },
+      "selected": "f7g7"
+    },
+    {
+      "best_score": 3,
+      "generated_moves": 33,
+      "pieces": {
+        "a4": "B",
+        "e1": "q",
+        "f5": "K",
+        "h6": "k",
+        "h8": "b"
+      },
+      "selected": "e1a5"
+    },
+    {
+      "best_score": 46,
+      "generated_moves": 41,
+      "pieces": {
+        "a4": "p",
+        "f8": "q",
+        "h1": "k",
+        "h4": "K",
+        "h6": "q"
+      },
+      "selected": "f8g8"
+    },
+    {
+      "best_score": 3,
+      "generated_moves": 8,
+      "pieces": {
+        "c2": "k",
+        "d3": "B",
+        "e3": "K",
+        "f6": "Q"
+      },
+      "selected": "c2d2"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 8,
+      "pieces": {
+        "g6": "k",
+        "g7": "K"
+      },
+      "selected": "g6f6"
+    },
+    {
+      "best_score": 46,
+      "generated_moves": 8,
+      "pieces": {
+        "d3": "k",
+        "e1": "K"
+      },
+      "selected": "d3e2"
+    },
+    {
+      "best_score": 46,
+      "generated_moves": 27,
+      "pieces": {
+        "a3": "K",
+        "a7": "q",
+        "c3": "k"
+      },
+      "selected": "a7a8"
+    },
+    {
+      "best_score": 37,
+      "generated_moves": 34,
+      "pieces": {
+        "a8": "b",
+        "b7": "Q",
+        "d6": "r",
+        "d7": "q",
+        "g4": "k",
+        "g7": "K"
+      },
+      "selected": "d7g7"
+    },
+    {
+      "best_score": 5,
+      "generated_moves": 8,
+      "pieces": {
+        "b4": "K",
+        "f6": "R",
+        "g6": "k",
+        "h7": "p"
+      },
+      "selected": "g6f6"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 15,
+      "pieces": {
+        "b4": "K",
+        "b8": "b",
+        "f7": "k"
+      },
+      "selected": "f7e7"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 5,
+      "pieces": {
+        "c8": "K",
+        "h5": "k"
+      },
+      "selected": "h5g5"
+    },
+    {
+      "best_score": 46,
+      "generated_moves": 5,
+      "pieces": {
+        "a8": "K",
+        "c8": "k",
+        "d1": "P"
+      },
+      "selected": "c8b8"
+    },
+    {
+      "best_score": -1,
+      "generated_moves": 4,
+      "pieces": {
+        "b5": "p",
+        "c5": "K",
+        "h1": "k"
+      },
+      "selected": "h1g1"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 14,
+      "pieces": {
+        "b6": "P",
+        "c1": "k",
+        "e4": "K",
+        "f7": "B",
+        "g1": "N",
+        "g7": "b"
+      },
+      "selected": "c1b1"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 15,
+      "pieces": {
+        "a2": "K",
+        "c8": "Q",
+        "e3": "n",
+        "f4": "k",
+        "f7": "R"
+      },
+      "selected": "e3f5"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 22,
+      "pieces": {
+        "e6": "k",
+        "f3": "r",
+        "h2": "K"
+      },
+      "selected": "f3a3"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 5,
+      "pieces": {
+        "a3": "k",
+        "b7": "K",
+        "d6": "N"
+      },
+      "selected": "a3b3"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 5,
+      "pieces": {
+        "a4": "P",
+        "e1": "k",
+        "h6": "K"
+      },
+      "selected": "e1d1"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 12,
+      "pieces": {
+        "a1": "B",
+        "c2": "k",
+        "c4": "N",
+        "e1": "Q",
+        "f8": "K",
+        "h4": "n"
+      },
+      "selected": "c2b3"
+    },
+    {
+      "best_score": 46,
+      "generated_moves": 8,
+      "pieces": {
+        "a4": "K",
+        "b5": "k"
+      },
+      "selected": "b5b4"
+    },
+    {
+      "best_score": 3,
+      "generated_moves": 9,
+      "pieces": {
+        "a6": "p",
+        "b3": "K",
+        "e1": "B",
+        "f2": "k"
+      },
+      "selected": "f2e1"
+    },
+    {
+      "best_score": -3,
+      "generated_moves": 10,
+      "pieces": {
+        "a5": "K",
+        "c3": "k",
+        "e7": "Q",
+        "h7": "Q",
+        "h8": "n"
+      },
+      "selected": "c3b3"
+    },
+    {
+      "best_score": 46,
+      "generated_moves": 47,
+      "pieces": {
+        "b5": "P",
+        "e2": "q",
+        "e5": "k",
+        "g6": "b",
+        "h3": "K",
+        "h4": "r"
+      },
+      "selected": "h4h3"
+    },
+    {
+      "best_score": 46,
+      "generated_moves": 35,
+      "pieces": {
+        "a5": "r",
+        "a7": "r",
+        "f1": "k",
+        "g1": "K",
+        "g6": "b",
+        "g8": "B"
+      },
+      "selected": "f1g1"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 18,
+      "pieces": {
+        "e7": "k",
+        "f6": "b",
+        "g2": "K",
+        "g7": "n"
+      },
+      "selected": "f6h4"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 5,
+      "pieces": {
+        "c3": "P",
+        "d2": "K",
+        "f8": "k"
+      },
+      "selected": "f8e8"
+    },
+    {
+      "best_score": 43,
+      "generated_moves": 38,
+      "pieces": {
+        "b3": "q",
+        "b7": "K",
+        "d4": "Q",
+        "e5": "n",
+        "g2": "k"
+      },
+      "selected": "b3b7"
+    },
+    {
+      "best_score": 0,
+      "generated_moves": 6,
+      "pieces": {
+        "d2": "p",
+        "d8": "B",
+        "e3": "K",
+        "f4": "Q",
+        "g1": "k"
+      },
+      "selected": "d2d1"
+    }
+  ]
+}
