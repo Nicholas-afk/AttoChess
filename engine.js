@@ -325,7 +325,7 @@
     title.appendChild(strong);
 
     var body = document.createElement("p");
-    body.textContent = "No reply arrived within nine seconds. The program deliberately stops when no move meets its score condition; invalid chess moves or a slow emulator can also interrupt play. This is not a checkmate verdict.";
+    body.textContent = "No reply arrived within nine seconds. The program deliberately stops when no move is generated; invalid chess moves or a slow emulator can also interrupt play. This is not a checkmate verdict.";
 
     var again = document.createElement("button");
     again.className = "btn";
@@ -448,7 +448,7 @@
 
     loadEmulator().then(function () {
       window.Dos(mount, {
-        url: "attochess.zip",
+        url: "attochess.zip?v=1e395c1e523f",
         theme: "black",
         kiosk: true,
         autoStart: true,
