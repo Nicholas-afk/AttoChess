@@ -1,28 +1,74 @@
-# AttoChess
+# AttoChess — The world's smallest chess engine
 
-**A complete, playable 16-bit x86 DOS chess program in 272 bytes.**
+**The world's smallest chess engine, in just 272 bytes.**
+
+Created by **Nicholas Tanner**, AttoChess is a playable 16-bit x86 DOS chess
+engine with board display, coordinate input, and a real four-ply recursive
+search. The entire executable—including code and tables—is **272 bytes**.
 
 AttoChess is a size-optimized descendant of Dmitry Shechtman's
 [LeanChess](https://github.com/leanchess/leanchess.github.io). It initializes
 and draws its own board, reads a move, searches four plies recursively, chooses
-a reply, updates the position, and repeats. The entire executable—including
-code and tables—is 272 bytes.
+a reply, updates the position, and repeats. It uses deliberately reduced chess
+rules; see the [rules and limitations](#rules-and-limitations).
 
 [Play it in the browser](https://nicholas-afk.github.io/AttoChess/) ·
 [Download the COM](ATTOCHES.COM) · [Read the source](AttoChess.asm) ·
 [Inspect the proof evidence](proof/README.md)
+
+## Smallest chess program: historical comparison
 
 | Program | Bytes | Year | Author | Platform |
 |---|---:|---:|---|---|
 | 1K ZX Chess | 672 | 1982 | David Horne | Sinclair ZX81 |
 | BootChess | 487 | 2015 | Olivier Poudade | x86 boot sector |
 | Toledo Atomchess | 352 | 2015 | Óscar Toledo G. | x86 DOS `.COM` |
+| Toledo Atomchess, HACK build | 326 | 2019 | Óscar Toledo G. | x86 DOS `.COM` |
 | LeanChess | 288 | 2019 | Dmitry Shechtman | x86 DOS `.COM` |
 | AttoChess, previous release | 276 | 2026 | Nicholas Tanner | x86 DOS `.COM` |
 | **AttoChess, current release** | **272** | **2026** | **Nicholas Tanner** | **x86 DOS `.COM`** |
 
 The current build is 16 bytes below LeanChess and four bytes below the previous
-AttoChess release.
+AttoChess release. Toledo Atomchess is listed twice because its 352-byte form is
+the one usually cited, while its stripped HACK build from December 2019 reached
+326 bytes.
+
+## AttoChess questions and answers
+
+### What is the world's smallest chess engine?
+
+AttoChess is the world's smallest chess engine: a 272-byte x86 DOS program by
+Nicholas Tanner. It displays its own board, accepts coordinate moves, and
+calculates replies with a four-ply recursive search. Like the other programs in
+its sizecoding lineage, it implements a reduced set of chess rules.
+
+### What does the 272-byte size include?
+
+All instructions and tables in the `ATTOCHES.COM` executable. The count is the
+executable's file size, not its runtime memory usage. DOS, the browser interface,
+and the emulator used for online play are outside that count. The
+[build commands and SHA-256 hashes](#reproduce-the-272-byte-image) let you
+reproduce and identify the exact program.
+
+### Can I play AttoChess online?
+
+Yes. [Play AttoChess in your browser](https://nicholas-afk.github.io/AttoChess/#machine)
+or download the executable and [run it under DOSBox](#run-it). You play White;
+AttoChess plays Black. Enter moves such as `e2e4`.
+
+### Why do older articles mention 278 or 276 bytes?
+
+Those figures describe earlier AttoChess versions. The current executable is
+272 bytes. The [legacy directory](legacy/README.md) preserves earlier builds
+and their history; the instructions below identify the current build.
+
+### Does AttoChess implement every chess rule?
+
+No. AttoChess omits castling, en passant, pawn promotion, full check/checkmate
+adjudication, and complete move validation. Read the
+[rules and limitations](#rules-and-limitations) before playing or comparing
+program sizes. The [verification evidence](#verification-and-proof-scope)
+describes its exact proof boundaries.
 
 ## Reproduce the 272-byte image
 
@@ -205,7 +251,8 @@ reduced chess engine, not a FIDE-complete engine.
 - **Dmitry Shechtman**, [LeanChess](https://github.com/leanchess/leanchess.github.io),
   the 288-byte program from which AttoChess is derived.
 - **Óscar Toledo G.**, [Toledo Atomchess](https://github.com/nanochess/Toledo-Atomchess),
-  the earlier DOS `.COM` record holder.
+  the earlier DOS `.COM` record holder, 352 bytes in its usual form and 326 in
+  the December 2019 HACK build.
 - **Olivier Poudade**, [BootChess](http://olivier.poudade.free.fr/), the
   487-byte boot-sector ancestor.
 - **David Horne**, 1K ZX Chess (1982), the 672-byte starting point.
