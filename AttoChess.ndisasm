@@ -54,33 +54,33 @@
 0000016A  BBF101            mov bx,0x1f1
 0000016D  D7                xlatb
 0000016E  E3E4              jcxz 0x154
-00000170  60                pusha
-00000171  BD2C02            mov bp,0x22c
-00000174  8A5E00            mov bl,[bp+0x0]
-00000177  84D3              test bl,dl
-00000179  755E              jnz 0x1d9
-0000017B  80E307            and bl,0x7
-0000017E  7459              jz 0x1d9
-00000180  8D7753            lea si,[bx+0x53]
-00000183  AC                lodsb
-00000184  88FC              mov ah,bh
-00000186  96                xchg ax,si
-00000187  AC                lodsb
-00000188  89EF              mov di,bp
-0000018A  98                cbw
-0000018B  01C7              add di,ax
-0000018D  8A25              mov ah,[di]
-0000018F  84F4              test ah,dh
-00000191  7540              jnz 0x1d3
-00000193  80FB04            cmp bl,0x4
-00000196  7514              jnz 0x1ac
-00000198  50                push ax
-00000199  30F0              xor al,dh
-0000019B  A820              test al,0x20
-0000019D  58                pop ax
-0000019E  7433              jz 0x1d3
-000001A0  50                push ax
-000001A1  20D4              and ah,dl
+00000170  B480              mov ah,0x80
+00000172  60                pusha
+00000173  BD2C02            mov bp,0x22c
+00000176  8A5E00            mov bl,[bp+0x0]
+00000179  84D3              test bl,dl
+0000017B  755C              jnz 0x1d9
+0000017D  80E307            and bl,0x7
+00000180  7457              jz 0x1d9
+00000182  8D7753            lea si,[bx+0x53]
+00000185  AC                lodsb
+00000186  88FC              mov ah,bh
+00000188  96                xchg ax,si
+00000189  AC                lodsb
+0000018A  89EF              mov di,bp
+0000018C  98                cbw
+0000018D  01C7              add di,ax
+0000018F  8A25              mov ah,[di]
+00000191  84F4              test ah,dh
+00000193  753E              jnz 0x1d3
+00000195  80FB04            cmp bl,0x4
+00000198  7512              jnz 0x1ac
+0000019A  50                push ax
+0000019B  30F0              xor al,dh
+0000019D  A820              test al,0x20
+0000019F  58                pop ax
+000001A0  7431              jz 0x1d3
+000001A2  50                push ax
 000001A3  F6DC              neg ah
 000001A5  D0D0              rcl al,1
 000001A7  A803              test al,0x3
@@ -105,13 +105,13 @@
 000001CB  8415              test [di],dl
 000001CD  7504              jnz 0x1d3
 000001CF  84DB              test bl,bl
-000001D1  7AB7              jpe 0x18a
+000001D1  7AB9              jpe 0x18c
 000001D3  F6D8              neg al
-000001D5  78B1              js 0x188
-000001D7  75AE              jnz 0x187
+000001D5  78B3              js 0x18a
+000001D7  75B0              jnz 0x189
 000001D9  45                inc bp
 000001DA  81FD8802          cmp bp,0x288
-000001DE  7594              jnz 0x174
+000001DE  7596              jnz 0x176
 000001E0  61                popa
 000001E1  28E0              sub al,ah
 000001E3  C3                ret
