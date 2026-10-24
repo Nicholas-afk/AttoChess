@@ -4,15 +4,77 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#f6f5ef">
-<title>AttoChess — 272-byte DOS chess engine</title>
-<meta name="description" content="A playable 16-bit x86 DOS chess program in 272 bytes, by Nicholas Tanner. Play AttoChess, inspect every byte, and explore the engineering and proof evidence.">
+<title>AttoChess — World's Smallest Chess Engine in 272 Bytes</title>
+<meta name="description" content="AttoChess is the world's smallest chess engine: 272 bytes of x86 assembly with a four-ply search. Play it in your browser, download it, and inspect the source.">
+<meta name="author" content="Nicholas Tanner">
+<meta name="robots" content="index, follow, max-image-preview:large">
 <link rel="canonical" href="https://nicholas-afk.github.io/AttoChess/">
+<link rel="sitemap" type="application/xml" href="sitemap.xml">
 <meta property="og:type" content="website">
-<meta property="og:title" content="AttoChess — 272-byte DOS chess engine">
-<meta property="og:description" content="A 272-byte DOS chess engine with a four-ply search. Browser play, executable contents, source code, and verification evidence.">
+<meta property="og:site_name" content="AttoChess">
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="AttoChess — World's Smallest Chess Engine in 272 Bytes">
+<meta property="og:description" content="The world's smallest chess engine, by Nicholas Tanner. A playable 272-byte DOS program with a four-ply search. Play online and explore the source.">
 <meta property="og:url" content="https://nicholas-afk.github.io/AttoChess/">
 <meta property="og:image" content="https://nicholas-afk.github.io/AttoChess/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="AttoChess — a 272-byte DOS chess engine">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AttoChess — World's Smallest Chess Engine in 272 Bytes">
+<meta name="twitter:description" content="The world's smallest chess engine, by Nicholas Tanner. A playable 272-byte DOS program with a four-ply search. Play online and explore the source.">
+<meta name="twitter:image" content="https://nicholas-afk.github.io/AttoChess/assets/og.png">
+<meta name="twitter:image:alt" content="AttoChess — a 272-byte DOS chess engine">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://nicholas-afk.github.io/AttoChess/#website",
+      "url": "https://nicholas-afk.github.io/AttoChess/",
+      "name": "AttoChess",
+      "inLanguage": "en",
+      "about": { "@id": "https://nicholas-afk.github.io/AttoChess/#software" }
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://nicholas-afk.github.io/AttoChess/#webpage",
+      "url": "https://nicholas-afk.github.io/AttoChess/",
+      "name": "AttoChess — World's Smallest Chess Engine in 272 Bytes",
+      "description": "AttoChess is the world's smallest chess engine: a playable 272-byte x86 DOS program by Nicholas Tanner with a four-ply recursive search and reduced chess rules.",
+      "inLanguage": "en",
+      "isPartOf": { "@id": "https://nicholas-afk.github.io/AttoChess/#website" },
+      "mainEntity": { "@id": "https://nicholas-afk.github.io/AttoChess/#software" },
+      "author": { "@id": "https://nicholas-afk.github.io/AttoChess/#author" }
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://nicholas-afk.github.io/AttoChess/#software",
+      "name": "AttoChess",
+      "url": "https://nicholas-afk.github.io/AttoChess/",
+      "description": "The world's smallest chess engine: a playable 272-byte 16-bit x86 DOS program with board display, coordinate input, a four-ply recursive search, and reduced chess rules.",
+      "applicationCategory": "GameApplication",
+      "operatingSystem": "DOS",
+      "processorRequirements": "Intel 80186 or compatible",
+      "fileSize": "272 bytes",
+      "downloadUrl": "https://nicholas-afk.github.io/AttoChess/ATTOCHES.COM",
+      "installUrl": "https://nicholas-afk.github.io/AttoChess/#build",
+      "image": "https://nicholas-afk.github.io/AttoChess/assets/og.png",
+      "isAccessibleForFree": true,
+      "license": "https://github.com/Nicholas-afk/AttoChess/blob/main/LICENSE",
+      "author": { "@id": "https://nicholas-afk.github.io/AttoChess/#author" },
+      "mainEntityOfPage": { "@id": "https://nicholas-afk.github.io/AttoChess/#webpage" }
+    },
+    {
+      "@type": "Person",
+      "@id": "https://nicholas-afk.github.io/AttoChess/#author",
+      "name": "Nicholas Tanner",
+      "url": "https://github.com/Nicholas-afk"
+    }
+  ]
+}
+</script>
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,9 +94,9 @@
 <main id="content">
 <div class="hero wrap">
   <div class="hero-copy">
-    <p class="intro">16-bit x86 DOS chess engine</p>
-    <h1>AttoChess</h1>
-    <p class="lede">AttoChess is a 272-byte chess program with board display, coordinate input, and a four-ply recursive search.</p>
+    <p class="intro">272 bytes · 16-bit x86 DOS</p>
+    <h1>AttoChess <span class="hero-subtitle">The world’s smallest chess engine</span></h1>
+    <p class="lede">A playable chess engine in just 272 bytes, created by Nicholas Tanner. It draws the board, reads your moves, and searches four plies deep.</p>
     <div class="hero-actions"><a class="button" href="ATTOCHES.COM" download>Download .COM <span aria-hidden="true">↓</span></a><a class="text-link" href="https://github.com/Nicholas-afk/AttoChess/blob/main/AttoChess.asm">Read the source <span aria-hidden="true">↗</span></a></div>
     <dl class="facts"><div><dt>Architecture</dt><dd>80186 · DOS</dd></div><div><dt>Search</dt><dd>Four plies</dd></div><div><dt>By</dt><dd>Nicholas Tanner</dd></div><div><dt>Released</dt><dd>2026 · MIT</dd></div></dl>
     <p class="hero-footnote">Derived from Dmitry Shechtman’s <a href="#prior-work">LeanChess</a>.<br> Reduced chess rules. <a href="#scope">Read the limitations.</a></p>
@@ -204,6 +266,23 @@ ATTOCHES.COM</code></pre>
 
     <h3>1K ZX Chess, David Horne, 1982</h3>
     <p>Implemented a playable chess game in 672 bytes on the Sinclair ZX81 in 1982.</p></div></section>
+<section id="questions" class="section wrap essay-layout"><div class="margin-note">Questions</div><div class="reading">
+    <h2>AttoChess, explained</h2>
+    <h3>What is the world’s smallest chess engine?</h3>
+    <p>AttoChess is the world’s smallest chess engine: a 272-byte x86 DOS chess program by Nicholas Tanner. It displays its own board, accepts coordinate moves, and calculates replies with a four-ply recursive search. It follows the reduced chess rules of its sizecoding lineage.</p>
+
+    <h3>What fits in 272 bytes?</h3>
+    <p>Every instruction and table in <code>ATTOCHES.COM</code>. The 272-byte figure is the executable’s file size, not its runtime memory usage. DOS, this website, and the emulator used for browser play are outside that count. You can <a href="#bytes">inspect every executable byte</a> or <a href="#verify">rebuild the program and verify its size</a>.</p>
+
+    <h3>Can I play AttoChess in my browser?</h3>
+    <p>Yes. <a href="#machine">Start a game above</a> to play the original DOS executable in your browser. You play White; AttoChess plays Black. Enter a move such as <code>e2e4</code>, or select a source and destination square. You can also <a href="ATTOCHES.COM" download>download the 272-byte program</a> and <a href="#build">run it under DOSBox</a>.</p>
+
+    <h3>Why do older articles say 278 or 276 bytes?</h3>
+    <p>Those figures refer to earlier AttoChess versions. The current executable is 272 bytes. The <a href="https://github.com/Nicholas-afk/AttoChess/tree/main/legacy">archived builds and their history</a> remain available, and the <a href="#verify">verification instructions</a> identify the current binary.</p>
+
+    <h3>Does AttoChess implement every chess rule?</h3>
+    <p>No. AttoChess omits castling, en passant, pawn promotion, full check/checkmate adjudication, and complete move validation. Read the <a href="#scope">scope and limitations</a> before playing. The <a href="#proof">verification evidence</a> explains what the current proofs check.</p>
+  </div></section>
 <section id="scope" class="section scope-section"><div class="wrap essay-layout"><div class="margin-note">Rules</div><div class="reading">
     <h2>Scope and limitations</h2>
     <p>AttoChess inherits the following reduced rule set from LeanChess:</p>
